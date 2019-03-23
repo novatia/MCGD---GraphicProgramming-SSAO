@@ -104,6 +104,7 @@
     <ClInclude Include="common\common_macros.h" />
     <ClInclude Include="common\int_types.h" />
     <ClInclude Include="demo\box_demo\box_demo_app.h" />
+    <ClInclude Include="demo\lights_demo\lights_demo_app.h" />
     <ClInclude Include="file\binary_file.h" />
     <ClInclude Include="file\file_utils.h" />
     <ClInclude Include="input\keyboard.h" />
@@ -126,6 +127,7 @@
     <ClCompile Include="camera\spherical_camera.cpp" />
     <ClCompile Include="common\assert.cpp" />
     <ClCompile Include="demo\box_demo\box_demo_app.cpp" />
+    <ClCompile Include="demo\lights_demo\lights_demo_app.cpp" />
     <ClCompile Include="file\binary_file.cpp" />
     <ClCompile Include="file\file_utils.cpp" />
     <ClCompile Include="input\keyboard.cpp" />
@@ -156,6 +158,14 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="demo\box_demo\box_demo_VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="demo\lights_demo\lights_demo_PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="demo\lights_demo\lights_demo_VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>

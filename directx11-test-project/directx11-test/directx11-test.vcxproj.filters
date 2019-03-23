@@ -37,6 +37,9 @@
     <Filter Include="camera">
       <UniqueIdentifier>{c7d884de-a817-42ef-b968-3a1c1a2b2fec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="demo\lights_demo">
+      <UniqueIdentifier>{b8bba18c-6161-4a4b-8cf1-465afa800812}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\resources\Resource.h">
@@ -104,6 +107,9 @@
     <ClInclude Include="camera\spherical_camera.h">
       <Filter>camera</Filter>
     </ClInclude>
+    <ClInclude Include="demo\lights_demo\lights_demo_app.h">
+      <Filter>demo\lights_demo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -153,6 +159,9 @@
     <ClCompile Include="camera\spherical_camera.cpp">
       <Filter>camera</Filter>
     </ClCompile>
+    <ClCompile Include="demo\lights_demo\lights_demo_app.cpp">
+      <Filter>demo\lights_demo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="application\resources\small.ico">
@@ -173,6 +182,12 @@
     </FxCompile>
     <FxCompile Include="demo\box_demo\box_demo_VS.hlsl">
       <Filter>demo\box_demo</Filter>
+    </FxCompile>
+    <FxCompile Include="demo\lights_demo\lights_demo_VS.hlsl">
+      <Filter>demo\lights_demo</Filter>
+    </FxCompile>
+    <FxCompile Include="demo\lights_demo\lights_demo_PS.hlsl">
+      <Filter>demo\lights_demo</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
