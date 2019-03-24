@@ -1,7 +1,6 @@
 #pragma once
 
 #include <application/directx_app.h>
-#include <input/mouse.h>
 #include <input/keyboard.h>
 #include <camera/spherical_camera.h>
 

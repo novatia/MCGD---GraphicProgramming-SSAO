@@ -2,6 +2,7 @@
 #include "box_demo_app.h"
 #include <file/file_utils.h>
 #include <math/math_utils.h>
+#include <service/locator.h>
 
 
 using namespace DirectX;
@@ -39,8 +40,8 @@ void BoxDemoApp::Init()
 	InitBuffers();
 	InitRasterizerState();
 
-	input::Mouse::GetMouse().AddListener(this);
-	input::Keyboard::GetKeyboard().AddListener(this, {input::Key::F});
+	service::Locator::GetMouse()->AddListener(this);
+	service::Locator::GetKeyboard()->AddListener(this, {input::Key::F});
 
 	m_d3dAnnotation->EndEvent();
 }
@@ -201,7 +202,7 @@ void BoxDemoApp::OnResized()
 void BoxDemoApp::OnWheelScroll(input::ScrollStatus scroll)
 {
 	// zoom in or out when the scroll wheel is used
-	if (input::Mouse::GetMouse().IsInClientArea())
+	if (service::Locator::GetMouse()->IsInClientArea())
 	{
 		m_camera.IncreaseRadiusBy(scroll.isScrollingUp ? -0.5f : 0.5f);
 	}
@@ -212,16 +213,16 @@ void xtest::demo::BoxDemoApp::OnMouseMove(const DirectX::XMINT2& movement, const
 {
 	XTEST_UNUSED_VAR(currentPos);
 
-	input::Mouse& mouse = input::Mouse::GetMouse();
+	input::Mouse* mouse = service::Locator::GetMouse();
 
 	// rotate the camera position around the cube when the left button is pressed
-	if (mouse.GetButtonStatus(input::MouseButton::left_button).isDown && mouse.IsInClientArea())
+	if (mouse->GetButtonStatus(input::MouseButton::left_button).isDown && mouse->IsInClientArea())
 	{
 		m_camera.RotateBy(math::ToRadians(movement.y * -0.25f), math::ToRadians(movement.x * 0.25f));
 	}
 
 	// pan the camera position when the right button is pressed
-	if (mouse.GetButtonStatus(input::MouseButton::right_button).isDown && mouse.IsInClientArea())
+	if (mouse->GetButtonStatus(input::MouseButton::right_button).isDown && mouse->IsInClientArea())
 	{
 		XMFLOAT3 cameraX = m_camera.GetXAxis();
 		XMFLOAT3 cameraY = m_camera.GetYAxis();

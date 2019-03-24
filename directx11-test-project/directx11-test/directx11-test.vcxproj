@@ -113,6 +113,7 @@
     <ClInclude Include="mesh\mesh_generator.h" />
     <ClInclude Include="render\directx_backend.h" />
     <ClInclude Include="render\render_macros.h" />
+    <ClInclude Include="service\locator.h" />
     <ClInclude Include="time\timer.h" />
     <ClInclude Include="application\window_settings.h" />
     <ClInclude Include="application\resources\Resource.h" />
@@ -135,6 +136,7 @@
     <ClCompile Include="math\math_utils.cpp" />
     <ClCompile Include="mesh\mesh_generator.cpp" />
     <ClCompile Include="render\directx_backend.cpp" />
+    <ClCompile Include="service\locator.cpp" />
     <ClCompile Include="time\timer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp">
