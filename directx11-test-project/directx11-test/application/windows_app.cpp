@@ -206,7 +206,7 @@ HWND WindowsApp::GetMainWindow() const
 	return m_mainWindow;
 }
 
-const std::wstring& WindowsApp::GetRootDir() const
+std::wstring WindowsApp::GetRootDir() const
 {
 	return m_rootDir;
 }

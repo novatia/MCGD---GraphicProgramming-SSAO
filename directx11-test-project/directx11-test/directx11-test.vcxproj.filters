@@ -43,6 +43,15 @@
     <Filter Include="service">
       <UniqueIdentifier>{bc56cb19-8bf0-4f00-8bb1-a3b8fd5b3021}</UniqueIdentifier>
     </Filter>
+    <Filter Include="external_libs">
+      <UniqueIdentifier>{5e4aff38-c33c-4dfe-adb1-f095c6b904f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\resources\data">
+      <UniqueIdentifier>{fc3576d5-4245-4893-b821-375cc5c0e9ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external_libs\tiny_obj_laoder">
+      <UniqueIdentifier>{04806977-1a85-4e8f-ab7c-d1950c923f14}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\resources\Resource.h">
@@ -116,6 +125,12 @@
     <ClInclude Include="service\locator.h">
       <Filter>service</Filter>
     </ClInclude>
+    <ClInclude Include="external_libs\tiny_obj_loader\tiny_obj_loader.h">
+      <Filter>external_libs\tiny_obj_laoder</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh\mesh_format.h">
+      <Filter>mesh</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -170,6 +185,12 @@
     </ClCompile>
     <ClCompile Include="service\locator.cpp">
       <Filter>service</Filter>
+    </ClCompile>
+    <ClCompile Include="external_libs\tiny_obj_loader\tiny_obj_loader.cc">
+      <Filter>external_libs\tiny_obj_laoder</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh\mesh_format.cpp">
+      <Filter>mesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

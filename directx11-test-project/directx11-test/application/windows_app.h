@@ -35,7 +35,7 @@ namespace application {
 
 		HINSTANCE GetInstance() const;
 		HWND GetMainWindow() const;
-		const std::wstring& GetRootDir() const;
+		std::wstring GetRootDir() const;
 
 	protected:
 
