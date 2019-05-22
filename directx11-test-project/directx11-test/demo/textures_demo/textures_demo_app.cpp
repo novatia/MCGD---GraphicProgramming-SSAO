@@ -23,6 +23,7 @@ TexturesDemoApp::TexturesDemoApp(HINSTANCE instance,
 	: application::DirectxApp(instance, windowSettings, directxSettings, fps)
 	, m_dirKeyLight()
 	, m_dirFillLight()
+	, m_spotLight()
 	, m_pointLight()
 	, m_lightingControls()
 	, m_isLightingControlsDirty(true)
@@ -126,31 +127,33 @@ void TexturesDemoApp::InitRenderables()
 				crate.SetTransform(XMMatrixTranslation(xPos, 0.f, zPos));
 				crate.Init();
 				m_objects.push_back(std::move(crate));
+
+				continue;
 			}
-			else
-			{
-				mesh::MeshMaterial mat;
-				mat.ambient = { 0.15f, 0.15f, 0.15f, 1.f };
-				mat.diffuse = { 0.52f, 0.52f, 0.52f, 1.f };
-				mat.specular = { 0.5f, 0.5f, 0.5f, 1.f };
-				mat.diffuseMap = GetRootDir().append(std::wstring(textureBase[textureIndex]).append(L"color.png"));
-				mat.normalMap = GetRootDir().append(std::wstring(textureBase[textureIndex]).append(L"norm.png"));
-				mat.glossMap = GetRootDir().append(std::wstring(textureBase[textureIndex]).append(L"gloss.png"));
 
 
-				render::Renderable sphere(mesh::GenerateSphere(1.f, 40, 40), mat);
-				sphere.SetTransform(XMMatrixTranslation(xPos, 2.5f, zPos));
-				sphere.SetTexcoordTransform(XMMatrixScaling(2.f, 2.f, 2.f));
-				sphere.Init();
 
-				render::Renderable box(mesh::GenerateBox(2.f, 2.f, 2.f), mat);
-				box.SetTransform(XMMatrixTranslation(xPos, 1.f, zPos));
-				box.SetTexcoordTransform(XMMatrixScaling(0.5f, 0.5f, 0.5f));
-				box.Init();
+			mesh::MeshMaterial mat;
+			mat.ambient = { 0.15f, 0.15f, 0.15f, 1.f };
+			mat.diffuse = { 0.52f, 0.52f, 0.52f, 1.f };
+			mat.specular = { 0.5f, 0.5f, 0.5f, 1.f };
+			mat.diffuseMap = GetRootDir().append(std::wstring(textureBase[textureIndex]).append(L"color.png"));
+			mat.normalMap = GetRootDir().append(std::wstring(textureBase[textureIndex]).append(L"norm.png"));
+			mat.glossMap = GetRootDir().append(std::wstring(textureBase[textureIndex]).append(L"gloss.png"));
 
-				m_objects.push_back(sphere);
-				m_objects.push_back(box);
-			}
+			
+			render::Renderable sphere(mesh::GenerateSphere(1.f, 40, 40), mat);
+			sphere.SetTransform(XMMatrixTranslation(xPos, 2.5f, zPos));
+			sphere.SetTexcoordTransform(XMMatrixScaling(2.f, 2.f, 2.f));
+			sphere.Init();
+
+			render::Renderable box(mesh::GenerateBox(2.f, 2.f, 2.f), mat);
+			box.SetTransform(XMMatrixTranslation(xPos, 1.f, zPos));
+			box.SetTexcoordTransform(XMMatrixScaling(0.5f, 0.5f, 0.5f));
+			box.Init();
+
+			m_objects.push_back(sphere);
+			m_objects.push_back(box);
 		}
 	}
 
@@ -176,6 +179,17 @@ void TexturesDemoApp::InitLights()
 	m_pointLight.posW = { -3.75f, 1.f, 3.75f };
 	m_pointLight.range = 20.f;
 	m_pointLight.attenuation = { 0.0f, 0.2f, 0.f };
+
+
+	m_spotLight.ambient = { 0.018f, 0.018f, 0.18f, 1.0f };
+	m_spotLight.diffuse = { 0.1f, 0.1f, 0.9f, 1.0f };
+	m_spotLight.specular = { 0.1f, 0.1f, 0.9f, 1.0f };
+	m_spotLight.posW = { 5.f, 5.f, -5.f };
+	m_spotLight.range = 50.f;
+	XMVECTOR dirW = XMVector3Normalize(XMVectorSet(-4.f, 1.f, 0.f, 1.f) - XMLoadFloat3(&m_spotLight.posW));
+	XMStoreFloat3(&m_spotLight.dirW, dirW);
+	m_spotLight.spot = 40.f;
+	m_spotLight.attenuation = { 0.0f, 0.125f, 0.f };
 
 
 	m_lightingControls.useDirLight = true;
@@ -292,6 +306,7 @@ void TexturesDemoApp::UpdateScene(float deltaSeconds)
 		PerFrameData data;
 		data.dirLights[0] = m_dirKeyLight;
 		data.dirLights[1] = m_dirFillLight;
+		data.spotLight = m_spotLight;
 		data.pointLights[0] = data.pointLights[1] = data.pointLights[2] = data.pointLights[3] = m_pointLight;
 		data.pointLights[0].posW = tmp[0];
 		data.pointLights[1].posW = tmp[1];

@@ -48,6 +48,19 @@ namespace demo {
 			float _explicit_pad_;
 		};
 
+		struct SpotLight
+		{
+			DirectX::XMFLOAT4 ambient;
+			DirectX::XMFLOAT4 diffuse;
+			DirectX::XMFLOAT4 specular;
+			DirectX::XMFLOAT3 posW;
+			float range;
+			DirectX::XMFLOAT3 dirW;
+			float spot;
+			DirectX::XMFLOAT3 attenuation;
+			float _explicit_pad_;
+		};
+
 		struct Material
 		{
 			DirectX::XMFLOAT4 ambient;
@@ -70,6 +83,7 @@ namespace demo {
 		{
 			DirectionalLight dirLights[k_dirLightCount];
 			PointLight pointLights[k_pointLightCount];
+			SpotLight spotLight;
 			DirectX::XMFLOAT3 eyePosW;
 			float _explicit_pad_;
 		};
@@ -113,6 +127,7 @@ namespace demo {
 
 		DirectionalLight m_dirKeyLight;
 		DirectionalLight m_dirFillLight;
+		SpotLight m_spotLight;
 		PointLight m_pointLight;
 		RarelyChangedData m_lightingControls;
 		bool m_isLightingControlsDirty;

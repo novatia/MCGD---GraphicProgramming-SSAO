@@ -4,6 +4,7 @@
 #include <render/render_resource.h>
 #include <render/shading/common_types.h>
 
+
 namespace xtest {
 namespace render {
 

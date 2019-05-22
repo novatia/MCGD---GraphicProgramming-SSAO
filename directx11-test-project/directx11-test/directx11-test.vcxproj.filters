@@ -70,6 +70,9 @@
     <Filter Include="external_libs\nlohmann_json">
       <UniqueIdentifier>{f9d4d471-b4c1-4161-acc0-6bd10998bc98}</UniqueIdentifier>
     </Filter>
+    <Filter Include="scene">
+      <UniqueIdentifier>{f635e4b9-0043-41e1-b2ea-f0084251bb04}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\resources\Resource.h">
@@ -233,8 +236,14 @@
     <ClInclude Include="common\utils.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClInclude Include="render\shading\shadow_map.h">
+      <Filter>render\shading</Filter>
+    </ClInclude>
     <ClInclude Include="render\shading\render_pass_state.h">
       <Filter>render\shading</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\bounding_sphere.h">
+      <Filter>scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -336,8 +345,14 @@
     <ClCompile Include="common\utils.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="render\shading\shadow_map.cpp">
+      <Filter>render\shading</Filter>
+    </ClCompile>
     <ClCompile Include="render\shading\render_pass_state.cpp">
       <Filter>render\shading</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\bounding_sphere.cpp">
+      <Filter>scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -371,6 +386,15 @@
     </FxCompile>
     <FxCompile Include="demo\textures_demo\textures_demo_VS.hlsl">
       <Filter>demo\textures_demo</Filter>
+    </FxCompile>
+    <FxCompile Include="demo\shadow_demo\shadow_demo_VS.hlsl">
+      <Filter>demo\shadow_demo</Filter>
+    </FxCompile>
+    <FxCompile Include="demo\shadow_demo\shadow_demo_PS.hlsl">
+      <Filter>demo\shadow_demo</Filter>
+    </FxCompile>
+    <FxCompile Include="demo\shadow_demo\shadow_demo_shadowmap_VS.hlsl">
+      <Filter>demo\shadow_demo</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
