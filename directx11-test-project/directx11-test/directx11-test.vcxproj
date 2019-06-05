@@ -102,6 +102,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="demo\SSAO_demo\AmbientOcclusionPass.h" />
     <ClInclude Include="application\directx_app.h" />
     <ClInclude Include="application\directx_settings.h" />
     <ClInclude Include="application\windows_app.h" />
@@ -163,6 +164,7 @@
     <ClInclude Include="time\time_span.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="demo\SSAO_demo\AmbientOcclusionPass.cpp" />
     <ClCompile Include="application\directx_app.cpp" />
     <ClCompile Include="application\windows_app.cpp" />
     <ClCompile Include="camera\camera.cpp" />
@@ -255,14 +257,14 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="SSAO_blur_PS.hlsl">
+    <FxCompile Include="demo\SSAO_demo\SSAO_blur_PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="SSAO_demo_PS.hlsl">
+    <FxCompile Include="demo\SSAO_demo\SSAO_demo_PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="SSAO_demo_shadowmap_VS.hlsl" />
-    <FxCompile Include="SSAO_demo_VS.hlsl">
+    <FxCompile Include="demo\SSAO_demo\SSAO_demo_shadowmap_VS.hlsl" />
+    <FxCompile Include="demo\SSAO_demo\SSAO_demo_VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
