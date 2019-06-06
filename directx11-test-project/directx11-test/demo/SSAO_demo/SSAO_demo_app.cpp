@@ -28,8 +28,10 @@ SSAODemoApp::SSAODemoApp(HINSTANCE instance,
 	, m_camera(math::ToRadians(80.f), math::ToRadians(170.f), 15.f, { 5.f, 4.f, -5.f }, { 0.f, 1.f, 0.f }, { math::ToRadians(4.f), math::ToRadians(175.f) }, { 3.f, 50.f })
 	, m_objects()
 	, m_shadowPass()
+	, m_SSAOPass()
 	, m_renderPass()
 	, m_shadowMap(2048)
+	, m_SSAOMap(windowSettings.width, windowSettings.height, 1, 128, 4, 2.0f, 3.0f)
 	, m_sceneBoundingSphere({ 0.f, 0.f, 0.f }, 21.f)
 {}
 
@@ -91,6 +93,28 @@ void SSAODemoApp::InitRenderTechnique()
 		m_shadowPass.Init();
 	}
 
+	/*
+	// SSAO pass
+	{
+		m_SSAOMap.SetNoiseSize(4);
+		m_SSAOMap.SetKernelSize(32);
+		m_SSAOMap.SetPower(3.0f);
+		m_SSAOMap.SetRadius(1.69f);
+		m_SSAOMap.Init();
+
+		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_VS.cso")));
+		vertexShader->SetVertexInput(std::make_shared<PosOnlyVertexInput>());
+		vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectShadowMapData>>());
+
+		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_PS.cso")));
+		pixelShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
+
+		m_SSAOPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), m_backBufferView.Get(), m_depthBufferView.Get()));
+		m_SSAOPass.SetVertexShader(vertexShader);
+		m_SSAOPass.SetPixelShader(pixelShader);
+		m_SSAOPass.Init();
+	}
+	*/
 
 	// render pass
 	{

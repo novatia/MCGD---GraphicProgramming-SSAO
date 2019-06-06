@@ -149,6 +149,7 @@
     <ClInclude Include="render\shading\sampler_types.h" />
     <ClInclude Include="render\shading\shader.h" />
     <ClInclude Include="render\shading\shadow_map.h" />
+    <ClInclude Include="render\shading\ssao_map.h" />
     <ClInclude Include="render\shading\vertex_input.h" />
     <ClInclude Include="render\shading\vertex_input_types.h" />
     <ClInclude Include="render\shading\vertex_shader.h" />
@@ -197,6 +198,7 @@
     <ClCompile Include="render\shading\render_pass_state.cpp" />
     <ClCompile Include="render\shading\shader.cpp" />
     <ClCompile Include="render\shading\shadow_map.cpp" />
+    <ClCompile Include="render\shading\ssao_map.cpp" />
     <ClCompile Include="render\shading\vertex_shader.cpp" />
     <ClCompile Include="scene\bounding_sphere.cpp" />
     <ClCompile Include="service\locator.cpp" />
@@ -247,6 +249,12 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="demo\SSAO_demo\ssao_normal_depth_PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="demo\SSAO_demo\ssao_normal_depth_VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="demo\textures_demo\textures_demo_PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
@@ -255,14 +263,14 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="SSAO_blur_PS.hlsl">
+    <FxCompile Include="demo\SSAO_demo\SSAO_blur_PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="SSAO_demo_PS.hlsl">
+    <FxCompile Include="demo\SSAO_demo\SSAO_demo_PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="SSAO_demo_shadowmap_VS.hlsl" />
-    <FxCompile Include="SSAO_demo_VS.hlsl">
+    <FxCompile Include="demo\SSAO_demo\SSAO_demo_shadowmap_VS.hlsl" />
+    <FxCompile Include="demo\SSAO_demo\SSAO_demo_VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>

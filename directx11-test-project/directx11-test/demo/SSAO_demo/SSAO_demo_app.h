@@ -11,6 +11,7 @@
 #include <render/shading/render_pass.h>
 #include <scene/bounding_sphere.h>
 #include <render/shading/shadow_map.h>
+#include <render/shading/ssao_map.h>
 
 
 namespace xtest {
@@ -127,9 +128,15 @@ namespace xtest {
 
 			camera::SphericalCamera m_camera;
 			std::vector<render::Renderable> m_objects;
+
 			render::shading::RenderPass m_shadowPass;
+			render::shading::RenderPass m_SSAOPass;
+			render::shading::RenderPass m_SSAOBlurPass;
 			render::shading::RenderPass m_renderPass;
+
 			render::shading::ShadowMap m_shadowMap;
+			render::shading::SSAOMap m_SSAOMap;
+
 			scene::BoundingSphere m_sceneBoundingSphere;
 		};
 

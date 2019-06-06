@@ -251,6 +251,9 @@
     <ClInclude Include="demo\SSAO_demo\SSAO_demo_app.h">
       <Filter>demo\SSAO_demo</Filter>
     </ClInclude>
+    <ClInclude Include="render\shading\ssao_map.h">
+      <Filter>render\shading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -363,6 +366,9 @@
     <ClCompile Include="demo\SSAO_demo\SSAO_demo_app.cpp">
       <Filter>demo\SSAO_demo</Filter>
     </ClCompile>
+    <ClCompile Include="render\shading\ssao_map.cpp">
+      <Filter>render\shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="application\resources\small.ico">
@@ -405,16 +411,22 @@
     <FxCompile Include="demo\shadow_demo\shadow_demo_shadowmap_VS.hlsl">
       <Filter>demo\shadow_demo</Filter>
     </FxCompile>
-    <FxCompile Include="SSAO_demo_PS.hlsl">
+    <FxCompile Include="demo\SSAO_demo\ssao_normal_depth_PS.hlsl">
       <Filter>demo\SSAO_demo</Filter>
     </FxCompile>
-    <FxCompile Include="SSAO_demo_VS.hlsl">
+    <FxCompile Include="demo\SSAO_demo\ssao_normal_depth_VS.hlsl">
       <Filter>demo\SSAO_demo</Filter>
     </FxCompile>
-    <FxCompile Include="SSAO_demo_shadowmap_VS.hlsl">
+    <FxCompile Include="demo\SSAO_demo\SSAO_demo_shadowmap_VS.hlsl">
       <Filter>demo\SSAO_demo</Filter>
     </FxCompile>
-    <FxCompile Include="SSAO_blur_PS.hlsl">
+    <FxCompile Include="demo\SSAO_demo\SSAO_demo_PS.hlsl">
+      <Filter>demo\SSAO_demo</Filter>
+    </FxCompile>
+    <FxCompile Include="demo\SSAO_demo\SSAO_demo_VS.hlsl">
+      <Filter>demo\SSAO_demo</Filter>
+    </FxCompile>
+    <FxCompile Include="demo\SSAO_demo\SSAO_blur_PS.hlsl">
       <Filter>demo\SSAO_demo</Filter>
     </FxCompile>
   </ItemGroup>
