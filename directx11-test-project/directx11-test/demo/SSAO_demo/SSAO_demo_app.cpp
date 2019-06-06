@@ -7,7 +7,8 @@
 #include <render/shading/rasterizer_state_types.h>
 #include <render/shading/sampler_types.h>
 #include <external_libs/directxtk/WICTextureLoader.h>
-
+#include <stdlib.h>
+#include <ctime>
 
 using namespace DirectX;
 using namespace xtest;
@@ -318,3 +319,47 @@ SSAODemoApp::PerObjectShadowMapData SSAODemoApp::ToPerObjectShadowMapData(const 
 	return data;
 }
 
+void SSAODemoApp::BuildFrustumFarCorners(float fovy, float farZ)
+{
+	float aspect = (float)m_renderTargetWidth / (float)m_renderTargetHeight;
+	float halfHeight = farZ * tanf(0.5f * fovy);
+	float halfWidth = aspect * halfHeight;
+
+	m_frustumFarCorner[0] = DirectX::XMFLOAT4(-halfWidth, -halfHeight, farZ, 0.0f);
+	m_frustumFarCorner[1] = DirectX::XMFLOAT4(-halfWidth, +halfHeight, farZ, 0.0f);
+	m_frustumFarCorner[2] = DirectX::XMFLOAT4(+halfWidth, +halfHeight, farZ, 0.0f);
+	m_frustumFarCorner[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, farZ, 0.0f);
+
+}
+
+float RandomFloat(float min, float max)
+{
+	
+	float scale = rand() / (float)RAND_MAX; /* [0, 1.0] */
+	return min + scale * (max - min);      /* [min, max] */
+}
+
+void SSAODemoApp::BuildOffsetVectors()
+{
+	m_offsets[0] = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f);
+	m_offsets[1] = DirectX::XMFLOAT4(-1.0f, -1.0f, -1.0f, 0.0f);
+	m_offsets[2] = DirectX::XMFLOAT4(-1.0f, 1.0f, 1.0f, 0.0f);
+	m_offsets[3] = DirectX::XMFLOAT4(1.0f, -1.0f, -1.0f, 0.0f);
+	m_offsets[4] = DirectX::XMFLOAT4(1.0f, 1.0f, -1.0f, 0.0f);
+	m_offsets[5] = DirectX::XMFLOAT4(-1.0f, -1.0f, 1.0f, 0.0f);
+	m_offsets[6] = DirectX::XMFLOAT4(-1.0f, 1.0f, -1.0f, 0.0f);
+	m_offsets[7] = DirectX::XMFLOAT4(1.0f, -1.0f, 1.0f, 0.0f);
+	m_offsets[8] = DirectX::XMFLOAT4(-1.0f, 0.0f, 0.0f, 0.0f);
+	m_offsets[9] = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 0.0f);
+	m_offsets[10] = DirectX::XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f);
+	m_offsets[11] = DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f);
+	m_offsets[12] = DirectX::XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
+	m_offsets[13] = DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 0.0f);
+	srand((unsigned) std::time(NULL));
+	for (int i = 0; i < 14; i++)
+	{
+		float s = RandomFloat(0.25f, 1.0f);
+		XMVECTOR v = s * XMVector4Normalize(XMLoadFloat4(&m_offsets[i]));
+		XMStoreFloat4(&m_offsets[i], v);
+	}
+}

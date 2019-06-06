@@ -1,41 +1,60 @@
-
-struct VertexOut
+struct VertexOutBlurPass
 {
 	float4 posH : SV_POSITION;
-	float3 posW : POSITION;
-	float3 normalW : NORMAL;
-	float4 tangentW : TANGENT;
 	float2 uv : TEXCOORD;
-	float4 shadowPosH : SHADOWPOS;
-	float3 rayViewSpace : VIEW_RAY; // new thing
 };
 
-cbuffer BlurCBuffer : register(b0) // new struct
+cbuffer PerFrameCBufferBlur : register(b0)
 {
-	uint noiseTextureDimension;
-};
+	float texelWidth;
+	float texelHeight;
+}
 
-SamplerState textureSampler : register (s0);
-Texture2D bufferTexture : register(t0);
-
-float main(VertexOut pin) : SV_TARGET
+cbuffer Settings : register(b1)
 {
-	
-	float w;
-	float h;
-	bufferTexture.GetDimensions(w, h);
-	const float2 texelSize = 1.0f / float2(w, h);
-	float result = 0.0f;
-	const float hlimComponent = -float(noiseTextureDimension) * 0.5f + 0.5f;
-	const float2 hlim = float2(hlimComponent, hlimComponent);
-	[unroll(4)] // add unroll
-	for (uint i = 0U; i < noiseTextureDimension; ++i) {
-		for (uint j = 0U; j < noiseTextureDimension; ++j) {
-			const float2 offset = (hlim + float2(float(i), float(j))) * texelSize;
-			result += bufferTexture.Sample(textureSampler, pin.uv + offset).r;
+	float weights[11] = { 0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f };
+}
+
+cbuffer Fixed : register(b2)
+{
+	static const int blurRadius = 5;
+}
+
+Texture2D normalDepthMap : register(t0);
+Texture2D inputImage : register(t1);
+
+SamplerState samNormalDepth : register(s0);
+SamplerState samInputImage : register(s1);
+
+float4 main(VertexOutBlurPass pin, uniform bool horizontalBlur) : SV_TARGET
+{
+	float2 texOffset;
+	if (horizontalBlur)
+	{
+		texOffset = float2(texelWidth, 0.0f);
+	}
+	else
+	{
+		texOffset = float2(0.0f, texelHeight);
+	}
+	float4 color = weights[5] * inputImage.SampleLevel(samInputImage, pin.uv, 0.0f);
+	float totalWeight = weights[5];
+	float4 centerNormalDepth = normalDepthMap.SampleLevel(samNormalDepth, pin.uv, 0.0f);
+	for (float i = -blurRadius; i <= blurRadius; ++i)
+	{
+		if (i == 0)
+		{
+			continue;
+		}
+		float2 tex = pin.uv + i * texOffset;
+		float4 neighborNormalDepth = normalDepthMap.SampleLevel(samNormalDepth, tex, 0.0f);
+		if (dot(neighborNormalDepth.xyz, centerNormalDepth.xyz) >= 0.8f &&
+			abs(neighborNormalDepth.a - centerNormalDepth.a) <= 0.2f)
+		{
+			float weight = weights[i + blurRadius];
+			color += weight * inputImage.SampleLevel(samInputImage, tex, 0.0f);
+			totalWeight += weight;
 		}
 	}
-
-	return result / float(noiseTextureDimension * noiseTextureDimension);
-
+	return color / totalWeight;
 }
