@@ -111,7 +111,8 @@ namespace xtest {
 			virtual void OnWheelScroll(input::ScrollStatus scroll) override;
 			virtual void OnMouseMove(const DirectX::XMINT2& movement, const DirectX::XMINT2& currentPos) override;
 			virtual void OnKeyStatusChange(input::Key key, const input::KeyStatus& status) override;
-
+			void BuildFrustumFarCorners(float fovy, float farz);
+			void BuildOffsetVectors();
 		private:
 
 			void InitRenderTechnique();
@@ -138,6 +139,11 @@ namespace xtest {
 			render::shading::SSAOMap m_SSAOMap;
 
 			scene::BoundingSphere m_sceneBoundingSphere;
+
+			int m_renderTargetWidth;
+			int m_renderTargetHeight;
+			DirectX::XMFLOAT4 m_frustumFarCorner[4];
+			DirectX::XMFLOAT4 m_offsets[14];
 		};
 
 	} // demo
