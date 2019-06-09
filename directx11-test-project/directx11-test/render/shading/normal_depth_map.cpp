@@ -38,7 +38,7 @@ void NormalDepthMap::Init()
 	textureDesc.Height = m_height;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT; // modify
+	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; // modify
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -51,7 +51,7 @@ void NormalDepthMap::Init()
 
 	// create the view used by the output merger state
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-	renderTargetViewDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	renderTargetViewDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	renderTargetViewDesc.Texture2D.MipSlice = 0;
 
@@ -59,7 +59,7 @@ void NormalDepthMap::Init()
 
 	//create the view used by the shader
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderViewDesc;
-	shaderViewDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	shaderViewDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	shaderViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderViewDesc.Texture2D.MipLevels = 1;
 	shaderViewDesc.Texture2D.MostDetailedMip = 0;
