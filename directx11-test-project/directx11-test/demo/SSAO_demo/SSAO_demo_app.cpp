@@ -28,11 +28,13 @@ SSAODemoApp::SSAODemoApp(HINSTANCE instance,
 	, m_isRarelyChangedDataDirty(true)
 	, m_camera(math::ToRadians(80.f), math::ToRadians(170.f), 15.f, { 5.f, 4.f, -5.f }, { 0.f, 1.f, 0.f }, { math::ToRadians(4.f), math::ToRadians(175.f) }, { 3.f, 50.f })
 	, m_objects()
+	, m_normalDepthPass()
 	, m_shadowPass()
 	, m_SSAOPass()
 	, m_renderPass()
 	, m_shadowMap(2048)
 	, m_SSAOMap(windowSettings.width, windowSettings.height, 1, 128, 4, 2.0f, 3.0f)
+	, m_normalDepthMap(windowSettings.width, windowSettings.height)
 	, m_sceneBoundingSphere({ 0.f, 0.f, 0.f }, 21.f)
 {}
 
@@ -50,6 +52,7 @@ void SSAODemoApp::Init()
 	InitLights();
 	InitRenderTechnique();
 	InitRenderables();
+	//m_d3dContext->OMSetRenderTargets(1, m_normalDepthMap.AsRenderTargetView(), m_depthBufferView.Get());
 
 	service::Locator::GetMouse()->AddListener(this);
 	service::Locator::GetKeyboard()->AddListener(this, { input::Key::F, input::Key::F1 });
@@ -93,6 +96,26 @@ void SSAODemoApp::InitRenderTechnique()
 		m_shadowPass.SetVertexShader(vertexShader);
 		m_shadowPass.Init();
 	}
+
+	// normal_depth_pass
+	{
+		m_normalDepthMap.Init();
+
+		//m_rarelyChangedData.shadowMapResolution = float(m_shadowMap.Resolution());
+
+		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_VS.cso")));
+		vertexShader->SetVertexInput(std::make_shared<PosOnlyVertexInput>());
+		vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectShadowMapData>>());
+
+		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_PS.cso")));
+		pixelShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
+
+		m_normalDepthPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), m_normalDepthMap.AsRenderTargetView1(), m_depthBufferView.Get()));
+		m_normalDepthPass.SetVertexShader(vertexShader);
+		m_normalDepthPass.SetPixelShader(pixelShader);
+		m_normalDepthPass.Init();
+	}
+
 
 	/*
 	// SSAO pass
@@ -278,7 +301,21 @@ void SSAODemoApp::RenderScene()
 	}
 	m_d3dAnnotation->EndEvent();
 
+	m_d3dAnnotation->BeginEvent(L"normal_depth-map");
+	m_normalDepthPass.Bind();
+	m_normalDepthPass.GetState()->ClearDepthOnly();
 
+	// draw objects
+	for (render::Renderable& renderable : m_objects)
+	{
+		for (const std::string& meshName : renderable.GetMeshNames())
+		{
+			PerObjectShadowMapData data = ToPerObjectShadowMapData(renderable, meshName);
+			m_normalDepthPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object)->UpdateBuffer(data);
+			renderable.Draw(meshName);
+		}
+	}
+	m_d3dAnnotation->EndEvent();
 
 	m_d3dAnnotation->BeginEvent(L"render-scene");
 	m_renderPass.Bind();

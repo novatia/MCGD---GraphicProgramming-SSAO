@@ -12,6 +12,8 @@
 #include <scene/bounding_sphere.h>
 #include <render/shading/shadow_map.h>
 #include <render/shading/ssao_map.h>
+#include <render/shading/normal_depth_map.h>
+
 
 
 namespace xtest {
@@ -131,13 +133,14 @@ namespace xtest {
 			std::vector<render::Renderable> m_objects;
 
 			render::shading::RenderPass m_shadowPass;
+			render::shading::RenderPass m_normalDepthPass;
 			render::shading::RenderPass m_SSAOPass;
 			render::shading::RenderPass m_SSAOBlurPass;
 			render::shading::RenderPass m_renderPass;
 
 			render::shading::ShadowMap m_shadowMap;
 			render::shading::SSAOMap m_SSAOMap;
-
+			render::shading::NormalDepthMap m_normalDepthMap;
 			scene::BoundingSphere m_sceneBoundingSphere;
 
 			int m_renderTargetWidth;

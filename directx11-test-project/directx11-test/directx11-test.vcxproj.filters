@@ -254,6 +254,9 @@
     <ClInclude Include="render\shading\ssao_map.h">
       <Filter>render\shading</Filter>
     </ClInclude>
+    <ClInclude Include="render\shading\normal_depth_map.h">
+      <Filter>render\shading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -367,6 +370,9 @@
       <Filter>demo\SSAO_demo</Filter>
     </ClCompile>
     <ClCompile Include="render\shading\ssao_map.cpp">
+      <Filter>render\shading</Filter>
+    </ClCompile>
+    <ClCompile Include="render\shading\normal_depth_map.cpp">
       <Filter>render\shading</Filter>
     </ClCompile>
   </ItemGroup>
