@@ -23,9 +23,7 @@ RandomVectorMap::RandomVectorMap(uint32 width, uint32 height)
 
 float RandomFloat1(float min, float max)
 {
-
-	float scale = rand() / (float)RAND_MAX; /* [0, 1.0] */
-	return min + scale * (max - min);      /* [min, max] */
+	return (float)(rand()) / (float)RAND_MAX;
 }
 
 void RandomVectorMap::Init()
@@ -39,29 +37,30 @@ void RandomVectorMap::Init()
 	ID3D11Device* d3dDevice = service::Locator::GetD3DDevice();
 	// create the shadow map texture
 	D3D11_TEXTURE2D_DESC textureDesc;
+
 	textureDesc.Width = 256;
 	textureDesc.Height = 256;
+
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
 	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // modify
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
-	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	textureDesc.Usage = D3D11_USAGE_DYNAMIC;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.CPUAccessFlags = 0;
 	textureDesc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA initData = { 0 };
-	initData.SysMemPitch = 256 * sizeof(DirectX::PackedVector::XMCOLOR);
+	initData.SysMemPitch = 256 * sizeof(float);
 
-	DirectX::PackedVector::XMCOLOR color[256 * 256];
+	float *color  = new float[256 * 256];
 	for (int i = 0; i < 256; ++i)
 	{
 		for (int j = 0; j < 256; ++j)
 		{
-			XMFLOAT3 v( RandomFloat1(0.0f, 1.0f), RandomFloat1(0.0f, 1.0f), RandomFloat1(0.0f, 1.0f) );
 
-			color[i * 256 + j] = DirectX::PackedVector::XMCOLOR(v.x, v.y, v.z, 0.0f);
+			color[i * 256 + j] = RandomFloat1(0,1);
 		}
 	}
 
