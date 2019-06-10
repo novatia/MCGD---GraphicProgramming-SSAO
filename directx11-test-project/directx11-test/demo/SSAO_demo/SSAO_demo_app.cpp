@@ -397,7 +397,7 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 
 SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusion(const render::Renderable& renderable, const std::string& meshName)
 {
-	BuildFrustumFarCorners(10.0f, 10.f); // parameter??
+	BuildFrustumFarCorners(m_camera.GetYFov(), m_camera.GetZFarPlane());
 	BuildOffsetVectors();
 	PerObjectCBAmbientOcclusion data;
 
@@ -443,7 +443,7 @@ SSAODemoApp::PerObjectShadowMapData SSAODemoApp::ToPerObjectShadowMapData(const 
 
 void SSAODemoApp::BuildFrustumFarCorners(float fovy, float farZ)
 {
-	float aspect = (float)m_renderTargetWidth / (float)m_renderTargetHeight;
+	float aspect = m_camera.GetAspectRatio();
 	float halfHeight = farZ * tanf(0.5f * fovy);
 	float halfWidth = aspect * halfHeight;
 
