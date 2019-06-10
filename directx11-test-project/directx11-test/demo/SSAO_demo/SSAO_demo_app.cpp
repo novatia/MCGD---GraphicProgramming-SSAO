@@ -35,6 +35,7 @@ SSAODemoApp::SSAODemoApp(HINSTANCE instance,
 	, m_shadowMap(2048)
 	, m_SSAOMap(windowSettings.width, windowSettings.height)//, 1, 128, 4, 2.0f, 3.0f)
 	, m_normalDepthMap(windowSettings.width, windowSettings.height)
+	, m_randomVecMap(windowSettings.width, windowSettings.height)
 	, m_sceneBoundingSphere({ 0.f, 0.f, 0.f }, 21.f)
 {}
 
@@ -116,7 +117,7 @@ void SSAODemoApp::InitRenderTechnique()
 		m_normalDepthPass.Init();
 	}
 
-
+	m_randomVecMap.Init();
 	
 	//// SSAO pass
 	{
@@ -325,7 +326,7 @@ void SSAODemoApp::RenderScene()
 	m_SSAOPass.Bind();
 	m_SSAOPass.GetState()->ClearDepthOnly();
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
-	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, nullptr); // randomVecMap?
+	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, m_randomVecMap.AsShaderView()); // randomVecMap?
 
 	// draw objects
 	for (render::Renderable& renderable : m_objects)

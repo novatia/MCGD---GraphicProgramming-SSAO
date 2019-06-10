@@ -13,6 +13,7 @@
 #include <render/shading/shadow_map.h>
 #include <render/shading/ssao_map.h>
 #include <render/shading/normal_depth_map.h>
+#include <render/shading/random_vec_map.h>
 
 
 
@@ -144,6 +145,7 @@ namespace xtest {
 			render::shading::ShadowMap m_shadowMap;
 			render::shading::SSAOMap m_SSAOMap;
 			render::shading::NormalDepthMap m_normalDepthMap;
+			render::shading::RandomVectorMap m_randomVecMap;
 			scene::BoundingSphere m_sceneBoundingSphere;
 
 			int m_renderTargetWidth;
