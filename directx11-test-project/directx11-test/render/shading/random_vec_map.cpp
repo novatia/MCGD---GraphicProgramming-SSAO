@@ -33,43 +33,49 @@ void RandomVectorMap::Init()
 	{
 		return;
 	}
-
+	int SIZE = 256;
 	ID3D11Device* d3dDevice = service::Locator::GetD3DDevice();
 	// create the shadow map texture
 	D3D11_TEXTURE2D_DESC textureDesc;
 
-	textureDesc.Width = 256;
-	textureDesc.Height = 256;
+	textureDesc.Width = SIZE;
+	textureDesc.Height = SIZE;
+	int bpp = 12;
+	int nb_color = 3;
+	float  *color = new float[SIZE * SIZE * nb_color];
 
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // modify
 	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage		= D3D11_USAGE_DEFAULT;
+	textureDesc.Format		= DXGI_FORMAT_R32G32B32_FLOAT; // modify
+	textureDesc.BindFlags	= D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.SampleDesc.Quality = 0;
-	textureDesc.Usage = D3D11_USAGE_DYNAMIC;
-	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.CPUAccessFlags = 0;
 	textureDesc.MiscFlags = 0;
 
-	D3D11_SUBRESOURCE_DATA initData = { 0 };
-	initData.SysMemPitch = 256 * sizeof(float);
-
-	float *color  = new float[256 * 256];
-	for (int i = 0; i < 256; ++i)
+	for (int i = 0; i < SIZE; i+=3)
 	{
-		for (int j = 0; j < 256; ++j)
+		for (int j = 0; j < SIZE; j+=3)
 		{
-
-			color[i * 256 + j] = RandomFloat1(0,1);
+			 color[i * SIZE + j +0] = RandomFloat1(1, 255);
+			 color[i * SIZE + j +1] = RandomFloat1(1, 255);
+			 color[i * SIZE + j +2] = RandomFloat1(1, 255);
 		}
 	}
 
-	initData.pSysMem = color;
+	D3D11_SUBRESOURCE_DATA initData;
+	initData.pSysMem			= (void *)color;
+	initData.SysMemPitch		= SIZE * bpp;
+	initData.SysMemSlicePitch	= SIZE * SIZE * bpp;
 
-	ID3D11Texture2D* tex = 0;
-	XTEST_ASSERT(d3dDevice->CreateTexture2D(&textureDesc, &initData, &tex));
+ 	Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
+	HRESULT hr = d3dDevice->CreateTexture2D(&textureDesc, &initData, tex.GetAddressOf());
+	//S_OK
+	delete[] color;
 
-	XTEST_ASSERT(d3dDevice->CreateShaderResourceView(tex, 0, &m_shaderView));
+	HRESULT hrsh = d3dDevice->CreateShaderResourceView( tex.Get(), 0, &m_shaderView);
+	//S_OK
 }
 
 
