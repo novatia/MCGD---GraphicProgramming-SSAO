@@ -1,3 +1,4 @@
+#define sampleCount 14
 
 struct Material
 {
@@ -51,7 +52,7 @@ float OcclusionFunction(float distZ)
 }
 
 
-float main(VertexOutAmbientOcclusion pin, uniform int sampleCount) : SV_TARGET
+float main(VertexOutAmbientOcclusion pin) : SV_TARGET
 {
 	float4 normalDepth = normalDepthMap.SampleLevel(samNormalDepth, pin.uv, 0.0f);
 	float3 n = normalDepth.xyz;

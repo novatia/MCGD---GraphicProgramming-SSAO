@@ -29,7 +29,7 @@ void xtest::render::shading::SSAOMap::Init()
 	textureDesc.Height = m_height;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R16_TYPELESS; // typeless is required since the shader view and the depth stencil view will interpret it differently
+	textureDesc.Format = DXGI_FORMAT_R32_TYPELESS; // typeless is required since the shader view and the depth stencil view will interpret it differently
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -47,7 +47,7 @@ void xtest::render::shading::SSAOMap::Init()
 	// create the view used by the output merger state
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 	depthStencilViewDesc.Flags = 0;
-	depthStencilViewDesc.Format = DXGI_FORMAT_D16_UNORM;
+	depthStencilViewDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
@@ -58,7 +58,7 @@ void xtest::render::shading::SSAOMap::Init()
 
 	//create the view used by the shader
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderViewDesc;
-	shaderViewDesc.Format = DXGI_FORMAT_R16_UNORM; // 24bit red channel (depth), 8 bit unused (stencil)
+	shaderViewDesc.Format = DXGI_FORMAT_R32_FLOAT; // 24bit red channel (depth), 8 bit unused (stencil)
 	shaderViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderViewDesc.Texture2D.MipLevels = 1;
 	shaderViewDesc.Texture2D.MostDetailedMip = 0;
