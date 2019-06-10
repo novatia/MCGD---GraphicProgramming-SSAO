@@ -33,7 +33,7 @@ SSAODemoApp::SSAODemoApp(HINSTANCE instance,
 	, m_SSAOPass()
 	, m_renderPass()
 	, m_shadowMap(2048)
-	, m_SSAOMap(windowSettings.width, windowSettings.height, 1, 128, 4, 2.0f, 3.0f)
+	, m_SSAOMap(windowSettings.width, windowSettings.height)//, 1, 128, 4, 2.0f, 3.0f)
 	, m_normalDepthMap(windowSettings.width, windowSettings.height)
 	, m_sceneBoundingSphere({ 0.f, 0.f, 0.f }, 21.f)
 {}
@@ -105,7 +105,7 @@ void SSAODemoApp::InitRenderTechnique()
 
 		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_VS.cso")));
 		vertexShader->SetVertexInput(std::make_shared<PosOnlyVertexInput>());
-		vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectShadowMapData>>());
+		vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
 
 		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_PS.cso")));
 		pixelShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
@@ -117,28 +117,32 @@ void SSAODemoApp::InitRenderTechnique()
 	}
 
 
-	/*
-	// SSAO pass
+	
+	//// SSAO pass
 	{
-		m_SSAOMap.SetNoiseSize(4);
-		m_SSAOMap.SetKernelSize(32);
-		m_SSAOMap.SetPower(3.0f);
-		m_SSAOMap.SetRadius(1.69f);
+		//m_SSAOMap.SetNoiseSize(4);
+		//m_SSAOMap.SetKernelSize(32);
+		//m_SSAOMap.SetPower(3.0f);
+		//m_SSAOMap.SetRadius(1.69f);
 		m_SSAOMap.Init();
 
-		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_VS.cso")));
+		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_demo_VS.cso")));
 		vertexShader->SetVertexInput(std::make_shared<PosOnlyVertexInput>());
-		vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectShadowMapData>>());
+		vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
+		vertexShader->AddConstantBuffer(CBufferFrequency::per_object_ambient_occlusion, std::make_unique<CBuffer<PerObjectCBAmbientOcclusion>>());
 
-		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_PS.cso")));
+		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_demo_PS.cso")));
 		pixelShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
+		pixelShader->AddConstantBuffer(CBufferFrequency::per_object_ambient_occlusion, std::make_unique<CBuffer<PerObjectCBAmbientOcclusion>>());
+		pixelShader->AddSampler(SamplerUsage::normal_depth_map, std::make_shared<NormalDepthSampler>());
+		pixelShader->AddSampler(SamplerUsage::random_vec, std::make_shared<RandomVecSampler>());
 
-		m_SSAOPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), m_backBufferView.Get(), m_depthBufferView.Get()));
+		m_SSAOPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), nullptr, m_SSAOMap.AsDepthStencilView()));
 		m_SSAOPass.SetVertexShader(vertexShader);
 		m_SSAOPass.SetPixelShader(pixelShader);
 		m_SSAOPass.Init();
 	}
-	*/
+	
 
 	// render pass
 	{
@@ -310,11 +314,35 @@ void SSAODemoApp::RenderScene()
 	{
 		for (const std::string& meshName : renderable.GetMeshNames())
 		{
-			PerObjectShadowMapData data = ToPerObjectShadowMapData(renderable, meshName);
+			PerObjectData data = ToPerObjectData(renderable, meshName);
 			m_normalDepthPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object)->UpdateBuffer(data);
 			renderable.Draw(meshName);
 		}
 	}
+	m_d3dAnnotation->EndEvent();
+
+	m_d3dAnnotation->BeginEvent(L"ambient-occlusion-pass");
+	m_SSAOPass.Bind();
+	m_SSAOPass.GetState()->ClearDepthOnly();
+	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
+	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, nullptr); // randomVecMap?
+
+	// draw objects
+	for (render::Renderable& renderable : m_objects)
+	{
+		for (const std::string& meshName : renderable.GetMeshNames())
+		{
+			PerObjectData data = ToPerObjectData(renderable, meshName);
+			PerObjectCBAmbientOcclusion data1 = ToPerObjectAmbientOcclusion(renderable, meshName);
+			m_SSAOPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object)->UpdateBuffer(data);
+			m_SSAOPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data1);
+			m_SSAOPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data1);
+			m_SSAOPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_object)->UpdateBuffer(data);
+			renderable.Draw(meshName);
+		}
+	}
+	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, nullptr);
+	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, nullptr); // randomVecMap?
 	m_d3dAnnotation->EndEvent();
 
 	m_d3dAnnotation->BeginEvent(L"render-scene");
@@ -363,6 +391,39 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 	data.material.ambient = renderable.GetMaterial(meshName).ambient;
 	data.material.diffuse = renderable.GetMaterial(meshName).diffuse;
 	data.material.specular = renderable.GetMaterial(meshName).specular;
+
+	return data;
+}
+
+SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusion(const render::Renderable& renderable, const std::string& meshName)
+{
+	BuildFrustumFarCorners(10.0f, 10.f); // parameter??
+	BuildOffsetVectors();
+	PerObjectCBAmbientOcclusion data;
+
+	XMMATRIX T = XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
+	XMMATRIX P = m_camera.GetProjectionMatrix();
+	XMMATRIX PT = P*T;
+
+	XMStoreFloat4x4(&data.viewToTexSpace, XMMatrixTranspose(PT));
+	data.frustumCorners[0] = m_frustumFarCorner[0];
+	data.frustumCorners[1] = m_frustumFarCorner[1];
+	data.frustumCorners[2] = m_frustumFarCorner[2];
+	data.frustumCorners[3] = m_frustumFarCorner[3];
+	data.offsetVectors[0] = m_offsets[0];
+	data.offsetVectors[1] = m_offsets[1];
+	data.offsetVectors[2] = m_offsets[2];
+	data.offsetVectors[3] = m_offsets[3];
+	data.offsetVectors[4] = m_offsets[4];
+	data.offsetVectors[5] = m_offsets[5];
+	data.offsetVectors[6] = m_offsets[6];
+	data.offsetVectors[7] = m_offsets[7];
+	data.offsetVectors[8] = m_offsets[8];
+	data.offsetVectors[9] = m_offsets[9];
+	data.offsetVectors[10] = m_offsets[10];
+	data.offsetVectors[11] = m_offsets[11];
+	data.offsetVectors[12] = m_offsets[12];
+	data.offsetVectors[13] = m_offsets[13];
 
 	return data;
 }

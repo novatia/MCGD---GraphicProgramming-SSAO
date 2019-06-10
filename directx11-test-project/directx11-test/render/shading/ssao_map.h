@@ -20,37 +20,33 @@ namespace xtest {
 				 */
 				explicit SSAOMap(
 					uint32 width, 
-					uint32 height , 
-					uint32 sample_factor,
-					uint32 kernel_size, 
-					uint32 noise_size, 
-					float radius, 
-					float power);
+					uint32 height
+					);
 
 				void Init();
 
-				void SetNoiseSize(uint32 noise_size);
+				/*void SetNoiseSize(uint32 noise_size);
 				void SetKernelSize(uint32 kernel_size);
 				void SetRadius(float radius);
-				void SetPower(float power);
+				void SetPower(float power);*/
 				
 				ID3D11ShaderResourceView* AsShaderView();
 				ID3D11DepthStencilView* AsDepthStencilView();
 				D3D11_VIEWPORT Viewport() const;
 				uint32 Width() const;
 				uint32 Height() const;
-				uint32 NoiseSize() const;
+				/*uint32 NoiseSize() const;
 				uint32 KernelSize() const;
 				float Radius() const;
-				float Power() const;
+				float Power() const;*/
 
 			private:
 				uint32 m_height;
 				uint32 m_width;
-				uint32 m_noise_size;
+				/*uint32 m_noise_size;
 				uint32 m_kernel_size;
 				float m_radius;
-				float m_power;
+				float m_power;*/
 
 				Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shaderView;
 				Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;

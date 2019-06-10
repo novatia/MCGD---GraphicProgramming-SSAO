@@ -2,15 +2,15 @@
 #include "ssao_map.h"
 #include <service/locator.h>
 
-xtest::render::shading::SSAOMap::SSAOMap(uint32 width, uint32 height,uint32 sample_factor, uint32 kernel_size, uint32 noise_size, float radius, float power)
+xtest::render::shading::SSAOMap::SSAOMap(uint32 width, uint32 height)
 {
-	m_width = width / sample_factor;
-	m_height = height / sample_factor;
+	m_width = width / 2;
+	m_height = height /2;
 
-	m_kernel_size = kernel_size;
-	m_noise_size = noise_size;
-	m_radius = radius;
-	m_power = power;
+	//m_kernel_size = kernel_size;
+	//m_noise_size = noise_size;
+	//m_radius = radius;
+	//m_power = power;
 }
 
 void xtest::render::shading::SSAOMap::Init()
@@ -29,7 +29,7 @@ void xtest::render::shading::SSAOMap::Init()
 	textureDesc.Height = m_height;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R24G8_TYPELESS; // typeless is required since the shader view and the depth stencil view will interpret it differently
+	textureDesc.Format = DXGI_FORMAT_R16_TYPELESS; // typeless is required since the shader view and the depth stencil view will interpret it differently
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -47,7 +47,7 @@ void xtest::render::shading::SSAOMap::Init()
 	// create the view used by the output merger state
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 	depthStencilViewDesc.Flags = 0;
-	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilViewDesc.Format = DXGI_FORMAT_D16_UNORM;
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
@@ -58,7 +58,7 @@ void xtest::render::shading::SSAOMap::Init()
 
 	//create the view used by the shader
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderViewDesc;
-	shaderViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS; // 24bit red channel (depth), 8 bit unused (stencil)
+	shaderViewDesc.Format = DXGI_FORMAT_R16_UNORM; // 24bit red channel (depth), 8 bit unused (stencil)
 	shaderViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderViewDesc.Texture2D.MipLevels = 1;
 	shaderViewDesc.Texture2D.MostDetailedMip = 0;
@@ -66,25 +66,25 @@ void xtest::render::shading::SSAOMap::Init()
 	XTEST_D3D_CHECK(d3dDevice->CreateShaderResourceView(texture.Get(), &shaderViewDesc, &m_shaderView));
 }
 
-void xtest::render::shading::SSAOMap::SetNoiseSize(uint32 noise_size)
-{
-	m_noise_size = noise_size;
-}
-
-void xtest::render::shading::SSAOMap::SetKernelSize(uint32 kernel_size)
-{
-	m_kernel_size = kernel_size;
-}
-
-void xtest::render::shading::SSAOMap::SetRadius(float radius)
-{
-	m_radius = radius;
-}
-
-void xtest::render::shading::SSAOMap::SetPower(float power)
-{
-	m_power = power;
-}
+//void xtest::render::shading::SSAOMap::SetNoiseSize(uint32 noise_size)
+//{
+//	m_noise_size = noise_size;
+//}
+//
+//void xtest::render::shading::SSAOMap::SetKernelSize(uint32 kernel_size)
+//{
+//	m_kernel_size = kernel_size;
+//}
+//
+//void xtest::render::shading::SSAOMap::SetRadius(float radius)
+//{
+//	m_radius = radius;
+//}
+//
+//void xtest::render::shading::SSAOMap::SetPower(float power)
+//{
+//	m_power = power;
+//}
 
 ID3D11ShaderResourceView * xtest::render::shading::SSAOMap::AsShaderView()
 {
@@ -112,22 +112,22 @@ uint32 xtest::render::shading::SSAOMap::Height() const
 	return m_height;
 }
 
-uint32 xtest::render::shading::SSAOMap::NoiseSize() const
-{
-	return m_noise_size;
-}
-
-uint32 xtest::render::shading::SSAOMap::KernelSize() const
-{
-	return m_kernel_size;
-}
-
-float xtest::render::shading::SSAOMap::Radius() const
-{
-	return m_radius;
-}
-
-float xtest::render::shading::SSAOMap::Power() const
-{
-	return m_power;
-}
+//uint32 xtest::render::shading::SSAOMap::NoiseSize() const
+//{
+//	return m_noise_size;
+//}
+//
+//uint32 xtest::render::shading::SSAOMap::KernelSize() const
+//{
+//	return m_kernel_size;
+//}
+//
+//float xtest::render::shading::SSAOMap::Radius() const
+//{
+//	return m_radius;
+//}
+//
+//float xtest::render::shading::SSAOMap::Power() const
+//{
+//	return m_power;
+//}

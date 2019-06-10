@@ -20,7 +20,7 @@ cbuffer PerObjectCB : register(b0)
 
 
 //INPUT to the Normal/Depth PS
-struct VertexOut
+struct VertexOutNormalDepth
 {
 	float4 posH : SV_POSITION;
 	float3 posW : POSITION;
@@ -28,7 +28,7 @@ struct VertexOut
 	float2 uv : TEXCOORD;
 };
 
-float4 main(VertexOut pin) : SV_TARGET
+float4 main(VertexOutNormalDepth pin) : SV_TARGET
 {
 	//renormalize interpolated normals.
 	pin.normalW = normalize(pin.normalW);

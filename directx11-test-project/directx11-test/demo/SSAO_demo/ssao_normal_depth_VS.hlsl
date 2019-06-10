@@ -29,7 +29,7 @@ cbuffer PerObjectCB : register(b0)
 
 
 //INPUT to the Normal/Depth PS
-struct VertexOut
+struct VertexOutNormalDepth
 {
 	float4 posH : SV_POSITION;
 	float3 posW : POSITION;
@@ -39,9 +39,9 @@ struct VertexOut
 
 
 
-VertexOut main(VertexIn vin)
+VertexOutNormalDepth main(VertexIn vin)
 {
-	VertexOut vout;
+	VertexOutNormalDepth vout;
 
 	vout.posW = mul(float4(vin.posL, 1.0f), W).xyz;
 	vout.normalW = mul(vin.normalL, (float3x3)W_inverseTraspose);

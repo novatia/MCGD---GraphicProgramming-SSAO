@@ -11,6 +11,7 @@ namespace shading {
 		per_object = 0,
 		per_frame = 1,
 		rarely_changed = 2,
+		per_object_ambient_occlusion = 3,
 		unknown
 
 	};
@@ -32,6 +33,8 @@ namespace shading {
 		color = 0,
 		normal = 1,
 		glossiness = 2,
+		normal_depth_map = 3,
+		random_vec_map = 4,
 		shadow_map = 10,
 		uknown
 	};
@@ -42,6 +45,8 @@ namespace shading {
 	enum class SamplerUsage
 	{
 		common_textures = 0,
+		normal_depth_map = 1,
+		random_vec = 2,
 		shadow_map = 10,
 		unknown
 	};

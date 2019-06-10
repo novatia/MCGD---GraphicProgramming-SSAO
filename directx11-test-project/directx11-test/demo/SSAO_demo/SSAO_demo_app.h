@@ -79,14 +79,15 @@ namespace xtest {
 				float _explicit_pad_[2];
 			};
 
-			struct AmbientOcclusionCBuffer //new struct
+			struct PerObjectCBAmbientOcclusion
 			{
-				float screenWidth;
-				float screenHeight;
-				unsigned int sampleKernelSize;
-				float noiseTextureDimension;
-				float occlusionRadius;
-				float SSAOPower;
+				DirectX::XMFLOAT4X4 viewToTexSpace; // Proj*Tex
+				DirectX::XMFLOAT4 offsetVectors[14];
+				DirectX::XMFLOAT4 frustumCorners[4];
+				float occlusionRadius = 0.5f;
+				float occlusionFadeStart = 0.2f;
+				float occlusionFadeEnd = 2.0f;
+				float surfaceEpsilon = 0.05f;
 			};
 
 			struct BlurCBuffer // new struct
@@ -121,6 +122,8 @@ namespace xtest {
 			void InitRenderables();
 			void InitLights();
 			PerObjectData ToPerObjectData(const render::Renderable& renderable, const std::string& meshName);
+			PerObjectCBAmbientOcclusion ToPerObjectAmbientOcclusion(const render::Renderable& renderable, const std::string& meshName);
+
 			PerObjectShadowMapData ToPerObjectShadowMapData(const render::Renderable& renderable, const std::string& meshName);
 
 
