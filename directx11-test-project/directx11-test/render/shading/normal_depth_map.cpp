@@ -12,7 +12,6 @@ NormalDepthMap::NormalDepthMap(uint32 width, uint32 height)
 	, m_height(height)
 	, m_shaderView(nullptr)
 	, m_renderTargetView(nullptr)
-	, m_depthStencilView(nullptr)
 {
 	m_viewport.TopLeftX = 0.f;
 	m_viewport.TopLeftY = 0.f;
@@ -38,7 +37,7 @@ void NormalDepthMap::Init()
 	textureDesc.Height = m_height;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; // modify
+	textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT; // modify
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -49,22 +48,9 @@ void NormalDepthMap::Init()
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
 	XTEST_D3D_CHECK(d3dDevice->CreateTexture2D(&textureDesc, nullptr, &texture));
 
-	// create the view used by the output merger state
-	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-	renderTargetViewDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	renderTargetViewDesc.Texture2D.MipSlice = 0;
-
 	XTEST_D3D_CHECK(d3dDevice->CreateRenderTargetView(texture.Get(), 0, &m_renderTargetView));
 
-	//create the view used by the shader
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderViewDesc;
-	shaderViewDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	shaderViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderViewDesc.Texture2D.MipLevels = 1;
-	shaderViewDesc.Texture2D.MostDetailedMip = 0;
-
-	XTEST_D3D_CHECK(d3dDevice->CreateShaderResourceView(texture.Get(), &shaderViewDesc, &m_shaderView));
+	XTEST_D3D_CHECK(d3dDevice->CreateShaderResourceView(texture.Get(), 0, &m_shaderView));
 }
 
 
@@ -75,30 +61,18 @@ ID3D11ShaderResourceView* NormalDepthMap::AsShaderView()
 }
 
 
-ID3D11RenderTargetView** NormalDepthMap::AsRenderTargetView()
-{
-	XTEST_ASSERT(m_renderTargetView, L"shadow map uninitialized");
-	return m_renderTargetView.GetAddressOf();
-}
 
-ID3D11RenderTargetView* NormalDepthMap::AsRenderTargetView1()
+ID3D11RenderTargetView* NormalDepthMap::AsRenderTargetView()
 {
 	XTEST_ASSERT(m_renderTargetView, L"shadow map uninitialized");
 	return m_renderTargetView.Get();
 }
 
-ID3D11DepthStencilView* NormalDepthMap::AsDepthStencilView()
-{
-	XTEST_ASSERT(m_depthStencilView, L"shadow map uninitialized");
-	return m_depthStencilView.Get();
-}
 
 D3D11_VIEWPORT NormalDepthMap::Viewport() const
 {
 	return m_viewport;
 }
-
-
 
 
 uint32 NormalDepthMap::Width() const

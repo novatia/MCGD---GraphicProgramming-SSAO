@@ -19,10 +19,7 @@ namespace xtest {
 
 				void Init();
 				ID3D11ShaderResourceView* AsShaderView();
-				ID3D11RenderTargetView** AsRenderTargetView();
-				ID3D11RenderTargetView* AsRenderTargetView1();
-
-				ID3D11DepthStencilView* AsDepthStencilView();
+				ID3D11RenderTargetView* AsRenderTargetView();
 				D3D11_VIEWPORT Viewport() const;
 				uint32 Width() const;
 				uint32 Height() const;
@@ -33,7 +30,6 @@ namespace xtest {
 				uint32 m_height;
 				Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shaderView;
 				Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
-				Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;
 
 				D3D11_VIEWPORT m_viewport;
 			};

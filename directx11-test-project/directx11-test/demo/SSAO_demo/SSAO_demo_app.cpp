@@ -53,8 +53,6 @@ void SSAODemoApp::Init()
 	InitLights();
 	InitRenderTechnique();
 	InitRenderables();
-	//m_d3dContext->OMSetRenderTargets(1, m_normalDepthMap.AsRenderTargetView(), m_depthBufferView.Get());
-
 	service::Locator::GetMouse()->AddListener(this);
 	service::Locator::GetKeyboard()->AddListener(this, { input::Key::F, input::Key::F1 });
 }
@@ -111,7 +109,7 @@ void SSAODemoApp::InitRenderTechnique()
 		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_PS.cso")));
 		pixelShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
 
-		m_normalDepthPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), m_normalDepthMap.AsRenderTargetView1(), m_depthBufferView.Get()));
+		m_normalDepthPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), m_normalDepthMap.AsRenderTargetView(), m_depthBufferView.Get()));
 		m_normalDepthPass.SetVertexShader(vertexShader);
 		m_normalDepthPass.SetPixelShader(pixelShader);
 		m_normalDepthPass.Init();
@@ -138,7 +136,7 @@ void SSAODemoApp::InitRenderTechnique()
 		pixelShader->AddSampler(SamplerUsage::normal_depth_map, std::make_shared<NormalDepthSampler>());
 		pixelShader->AddSampler(SamplerUsage::random_vec, std::make_shared<RandomVecSampler>());
 
-		m_SSAOPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), nullptr, m_SSAOMap.AsDepthStencilView()));
+		m_SSAOPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), m_SSAOMap.AsRenderTargetView(), nullptr));
 		m_SSAOPass.SetVertexShader(vertexShader);
 		m_SSAOPass.SetPixelShader(pixelShader);
 		m_SSAOPass.Init();
@@ -324,7 +322,7 @@ void SSAODemoApp::RenderScene()
 
 	m_d3dAnnotation->BeginEvent(L"ambient-occlusion-pass");
 	m_SSAOPass.Bind();
-	m_SSAOPass.GetState()->ClearDepthOnly();
+	//m_SSAOPass.GetState()->ClearDepthOnly();
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, m_randomVecMap.AsShaderView()); // randomVecMap?
 
@@ -402,9 +400,12 @@ SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusio
 	BuildOffsetVectors();
 	PerObjectCBAmbientOcclusion data;
 
-	XMMATRIX T = XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
+	XMMATRIX T(0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f);//XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
 	XMMATRIX P = m_camera.GetProjectionMatrix();
-	XMMATRIX PT = P*T;
+	XMMATRIX PT = XMMatrixMultiply(P,T);
 
 	XMStoreFloat4x4(&data.viewToTexSpace, XMMatrixTranspose(PT));
 	data.frustumCorners[0] = m_frustumFarCorner[0];

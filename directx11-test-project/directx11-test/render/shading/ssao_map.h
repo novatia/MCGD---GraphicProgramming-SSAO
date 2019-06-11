@@ -31,7 +31,7 @@ namespace xtest {
 				void SetPower(float power);*/
 				
 				ID3D11ShaderResourceView* AsShaderView();
-				ID3D11DepthStencilView* AsDepthStencilView();
+				ID3D11RenderTargetView* AsRenderTargetView();
 				D3D11_VIEWPORT Viewport() const;
 				uint32 Width() const;
 				uint32 Height() const;
@@ -49,7 +49,7 @@ namespace xtest {
 				float m_power;*/
 
 				Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shaderView;
-				Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;
+				Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 				D3D11_VIEWPORT m_viewport;
 			};
 		} //shading

@@ -21,7 +21,7 @@ RandomVectorMap::RandomVectorMap(uint32 width, uint32 height)
 	m_viewport.MaxDepth = 1.f;
 }
 
-float RandomFloat1(float min, float max)
+float RandomFloat1()
 {
 	return (float)(rand()) / (float)RAND_MAX;
 }
@@ -46,36 +46,35 @@ void RandomVectorMap::Init()
 	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // modify
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
-	textureDesc.Usage = D3D11_USAGE_DYNAMIC;
+	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.CPUAccessFlags = 0;
 	textureDesc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA initData = { 0 };
-	initData.SysMemPitch = 256 * sizeof(float);
+	initData.SysMemPitch = 256 * sizeof(DirectX::PackedVector::XMCOLOR);
 
-	float *color  = new float[256 * 256];
+	DirectX::PackedVector::XMCOLOR color[256 * 256];
 	for (int i = 0; i < 256; ++i)
 	{
 		for (int j = 0; j < 256; ++j)
 		{
-
-			color[i * 256 + j] = RandomFloat1(0,1);
+			XMFLOAT3 v(RandomFloat1(), RandomFloat1(), RandomFloat1());
+			color[i * 256 + j] = DirectX::PackedVector::XMCOLOR(v.x, v.y, v.z, 0.0f);
 		}
 	}
-
 	initData.pSysMem = color;
 
-	ID3D11Texture2D* tex = 0;
-	XTEST_ASSERT(d3dDevice->CreateTexture2D(&textureDesc, &initData, &tex));
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
+	XTEST_ASSERT(d3dDevice->CreateTexture2D(&textureDesc, &initData, &texture));
 
-	XTEST_ASSERT(d3dDevice->CreateShaderResourceView(tex, 0, &m_shaderView));
+	XTEST_ASSERT(d3dDevice->CreateShaderResourceView(texture.Get(), 0, &m_shaderView));
 }
 
 
 ID3D11ShaderResourceView* RandomVectorMap::AsShaderView()
 {
-	XTEST_ASSERT(m_shaderView, L"shadow map uninitialized");
+	XTEST_ASSERT(m_shaderView, L"random vec map uninitialized");
 	return m_shaderView.Get();
 }
 
