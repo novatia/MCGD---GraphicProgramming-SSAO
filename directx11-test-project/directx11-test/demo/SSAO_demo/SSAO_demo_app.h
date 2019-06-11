@@ -123,7 +123,7 @@ namespace xtest {
 			void InitRenderables();
 			void InitLights();
 			PerObjectData ToPerObjectData(const render::Renderable& renderable, const std::string& meshName);
-			PerObjectCBAmbientOcclusion ToPerObjectAmbientOcclusion(const render::Renderable& renderable, const std::string& meshName);
+			PerObjectCBAmbientOcclusion ToPerObjectAmbientOcclusion();
 
 			PerObjectShadowMapData ToPerObjectShadowMapData(const render::Renderable& renderable, const std::string& meshName);
 

@@ -125,12 +125,12 @@ void SSAODemoApp::InitRenderTechnique()
 		//m_SSAOMap.SetRadius(1.69f);
 		m_SSAOMap.Init();
 
-		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_demo_VS.cso")));
+		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_map_VS.cso")));
 		vertexShader->SetVertexInput(std::make_shared<VertexInputAmbientOcclusion>());
 		vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
 		vertexShader->AddConstantBuffer(CBufferFrequency::per_object_ambient_occlusion, std::make_unique<CBuffer<PerObjectCBAmbientOcclusion>>());
 
-		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_demo_PS.cso")));
+		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_map_PS.cso")));
 		pixelShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
 		pixelShader->AddConstantBuffer(CBufferFrequency::per_object_ambient_occlusion, std::make_unique<CBuffer<PerObjectCBAmbientOcclusion>>());
 		pixelShader->AddSampler(SamplerUsage::normal_depth_map, std::make_shared<NormalDepthSampler>());
@@ -321,29 +321,20 @@ void SSAODemoApp::RenderScene()
 	}
 	m_d3dAnnotation->EndEvent();
 
-	
+	{
 	m_d3dAnnotation->BeginEvent(L"ambient-occlusion-pass");
 	m_SSAOPass.Bind();
+
 	//m_SSAOPass.GetState()->ClearDepthOnly();
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, m_randomVecMap.AsShaderView());
 
-	// draw objects
-	for (render::Renderable& renderable : m_objects)
-	{
-		for (const std::string& meshName : renderable.GetMeshNames())
-		{
-			PerObjectData data = ToPerObjectData(renderable, meshName);
-			PerObjectCBAmbientOcclusion data1 = ToPerObjectAmbientOcclusion(renderable, meshName);
-
-			m_SSAOPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object)->UpdateBuffer(data);
-			m_SSAOPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data1);
-			
-			m_SSAOPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_object)->UpdateBuffer(data);
-			m_SSAOPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data1);
-
-			renderable.Draw(meshName);
-		}
+	//attach CB
+	PerObjectCBAmbientOcclusion data1 = ToPerObjectAmbientOcclusion();
+	m_SSAOPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data1);
+	m_SSAOPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data1);
+	// compute MAP
+	m_SSAOMap.Draw();
 	}
 	
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, nullptr);
@@ -400,7 +391,7 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 	return data;
 }
 
-SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusion(const render::Renderable& renderable, const std::string& meshName)
+SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusion()
 {
 	BuildFrustumFarCorners(m_camera.GetYFov(), m_camera.GetZFarPlane());
 	BuildOffsetVectors();

@@ -22,6 +22,7 @@ namespace xtest {
 				std::vector<VertexInAmbientOcclusion> vertices;
 				std::vector<uint32> indices;
 			};
+
 			// class representing a shadow map
 			class SSAOMap
 			{
@@ -52,6 +53,9 @@ namespace xtest {
 				D3D11_VIEWPORT Viewport() const;
 				uint32 Width() const;
 				uint32 Height() const;
+				void Bind();
+				void Draw();
+
 				/*uint32 NoiseSize() const;
 				uint32 KernelSize() const;
 				float Radius() const;

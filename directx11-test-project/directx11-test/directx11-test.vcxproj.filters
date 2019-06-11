@@ -429,13 +429,19 @@
     <FxCompile Include="demo\SSAO_demo\ssao_normal_depth_VS.hlsl">
       <Filter>demo\SSAO_demo</Filter>
     </FxCompile>
-    <FxCompile Include="demo\SSAO_demo\SSAO_demo_PS.hlsl">
+    <FxCompile Include="demo\SSAO_demo\SSAO_blur_PS.hlsl">
+      <Filter>demo\SSAO_demo</Filter>
+    </FxCompile>
+    <FxCompile Include="demo\SSAO_demo\SSAO_map_PS.hlsl">
+      <Filter>demo\SSAO_demo</Filter>
+    </FxCompile>
+    <FxCompile Include="demo\SSAO_demo\SSAO_map_VS.hlsl">
       <Filter>demo\SSAO_demo</Filter>
     </FxCompile>
     <FxCompile Include="demo\SSAO_demo\SSAO_demo_VS.hlsl">
       <Filter>demo\SSAO_demo</Filter>
     </FxCompile>
-    <FxCompile Include="demo\SSAO_demo\SSAO_blur_PS.hlsl">
+    <FxCompile Include="demo\SSAO_demo\SSAO_demo_PS.hlsl">
       <Filter>demo\SSAO_demo</Filter>
     </FxCompile>
   </ItemGroup>

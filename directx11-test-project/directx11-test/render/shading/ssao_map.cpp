@@ -155,6 +155,22 @@ uint32 xtest::render::shading::SSAOMap::Height() const
 	return m_height;
 }
 
+void xtest::render::shading::SSAOMap::Bind()
+{
+	XTEST_ASSERT(m_d3dVertexBuffer && m_d3dIndexBuffer, L"uninitialized renderable");
+
+	UINT stride = sizeof(SSAOData::VertexInAmbientOcclusion);
+	UINT offset = 0;
+	service::Locator::GetD3DContext()->IASetVertexBuffers(0, 1, m_d3dVertexBuffer.GetAddressOf(), &stride, &offset);
+	service::Locator::GetD3DContext()->IASetIndexBuffer(m_d3dIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+}
+
+void xtest::render::shading::SSAOMap::Draw()
+{
+	Bind();
+	service::Locator::GetD3DContext()->DrawIndexed(m_vs_data.indices.size(), 0, 0);
+}
+
 //uint32 xtest::render::shading::SSAOMap::NoiseSize() const
 //{
 //	return m_noise_size;
