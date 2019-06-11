@@ -14,7 +14,7 @@ cbuffer PerObjectCB : register(b0)
 	float4x4 WVP;
 	float4x4 TexcoordMatrix;
 	float4x4 WVPT_shadowMap;
-	float4x4 projectionMatrix; // new matrix
+	float4x4 WVPT_ssao;
 	Material material;
 };
 
