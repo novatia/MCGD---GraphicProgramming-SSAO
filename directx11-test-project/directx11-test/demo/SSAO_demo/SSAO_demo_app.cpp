@@ -54,7 +54,7 @@ void SSAODemoApp::Init()
 	InitRenderTechnique();
 	InitRenderables();
 	service::Locator::GetMouse()->AddListener(this);
-	service::Locator::GetKeyboard()->AddListener(this, { input::Key::F, input::Key::F1 });
+	service::Locator::GetKeyboard()->AddListener(this, { input::Key::F, input::Key::F1, input::Key::F2, input::Key::U, input::Key::Y, input::Key::J, input::Key::H, input::Key::M, input::Key::N });
 }
 
 
@@ -385,6 +385,7 @@ void SSAODemoApp::RenderScene()
 	m_renderPass.GetState()->ClearDepthOnly();
 	m_renderPass.GetState()->ClearRenderTarget(DirectX::Colors::DarkGray);
 	m_renderPass.GetPixelShader()->BindTexture(TextureUsage::shadow_map, m_shadowMap.AsShaderView());
+	m_renderPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, m_SSAOMap.AsShaderView());
 
 	// draw objects
 	for (render::Renderable& renderable : m_objects)
@@ -397,7 +398,6 @@ void SSAODemoApp::RenderScene()
 			m_renderPass.GetPixelShader()->BindTexture(TextureUsage::color, renderable.GetTextureView(TextureUsage::color, meshName));
 			m_renderPass.GetPixelShader()->BindTexture(TextureUsage::normal, renderable.GetTextureView(TextureUsage::normal, meshName));
 			m_renderPass.GetPixelShader()->BindTexture(TextureUsage::glossiness, renderable.GetTextureView(TextureUsage::glossiness, meshName));
-			m_renderPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, renderable.GetTextureView(TextureUsage::ssao_map, meshName));
 			renderable.Draw(meshName);
 		}
 	}
