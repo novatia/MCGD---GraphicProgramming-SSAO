@@ -236,13 +236,13 @@ float4 main(VertexOut pin) : SV_TARGET
 	{
 		DirectionalLightContribution(material, dirLights[i], bumpNormalW, toEyeW, glossSample, ambient, diffuse, specular);
 		
-		totalAmbient += ambient * ambientAccess;
+		totalAmbient += ambient;
 		
 	
 		totalDiffuse += diffuse * litFactors[i];
 		totalSpecular += specular * litFactors[i];
 	}
-
+	totalAmbient *= ambientAccess;
 
 	float4 diffuseColor = diffuseTexture.Sample(textureSampler, pin.uv);
 	float4 finalColor = diffuseColor * (totalAmbient + totalDiffuse) + totalSpecular;
