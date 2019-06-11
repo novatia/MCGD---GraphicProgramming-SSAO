@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include <service/locator.h>
 #include "random_vec_map.h"
-#include <DirectXPackedVector.h>
-
 
 using namespace xtest::render::shading;
 using namespace DirectX;
@@ -33,42 +31,42 @@ void RandomVectorMap::Init()
 	{
 		return;
 	}
-
+	int SIZE = 256;
 	ID3D11Device* d3dDevice = service::Locator::GetD3DDevice();
-	// create the shadow map texture
-	D3D11_TEXTURE2D_DESC textureDesc;
 
-	textureDesc.Width = 256;
-	textureDesc.Height = 256;
-
-	textureDesc.MipLevels = 1;
-	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // modify
-	textureDesc.SampleDesc.Count = 1;
-	textureDesc.SampleDesc.Quality = 0;
-	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	textureDesc.CPUAccessFlags = 0;
-	textureDesc.MiscFlags = 0;
+	D3D11_TEXTURE2D_DESC texDesc;
+	texDesc.Width = 256;
+	texDesc.Height = 256;
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA initData = { 0 };
-	initData.SysMemPitch = 256 * sizeof(DirectX::PackedVector::XMCOLOR);
+	initData.SysMemPitch = 256 * sizeof(PackedVector::XMCOLOR);
 
-	DirectX::PackedVector::XMCOLOR color[256 * 256];
+	PackedVector::XMCOLOR color[256 * 256];
 	for (int i = 0; i < 256; ++i)
 	{
 		for (int j = 0; j < 256; ++j)
 		{
 			XMFLOAT3 v(RandomFloat1(), RandomFloat1(), RandomFloat1());
-			color[i * 256 + j] = DirectX::PackedVector::XMCOLOR(v.x, v.y, v.z, 0.0f);
+
+			color[i * 256 + j] = PackedVector::XMCOLOR(v.x, v.y, v.z, 0.0f);
 		}
 	}
+
 	initData.pSysMem = color;
 
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
-	XTEST_ASSERT(d3dDevice->CreateTexture2D(&textureDesc, &initData, &texture));
+	ID3D11Texture2D* tex = 0;
+	XTEST_ASSERT(d3dDevice->CreateTexture2D(&texDesc, &initData, &tex));
 
-	XTEST_ASSERT(d3dDevice->CreateShaderResourceView(texture.Get(), 0, &m_shaderView));
+	XTEST_ASSERT(d3dDevice->CreateShaderResourceView(tex, 0, &m_shaderView));
 }
 
 

@@ -429,9 +429,6 @@
     <FxCompile Include="demo\SSAO_demo\ssao_normal_depth_VS.hlsl">
       <Filter>demo\SSAO_demo</Filter>
     </FxCompile>
-    <FxCompile Include="demo\SSAO_demo\SSAO_demo_shadowmap_VS.hlsl">
-      <Filter>demo\SSAO_demo</Filter>
-    </FxCompile>
     <FxCompile Include="demo\SSAO_demo\SSAO_demo_PS.hlsl">
       <Filter>demo\SSAO_demo</Filter>
     </FxCompile>
