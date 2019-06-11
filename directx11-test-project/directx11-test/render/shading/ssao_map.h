@@ -5,8 +5,11 @@ namespace xtest {
 	namespace render {
 		namespace shading {
 
+			
+
 			struct SSAOData
 			{
+
 				struct VertexInAmbientOcclusion
 				{
 
@@ -21,6 +24,7 @@ namespace xtest {
 
 				std::vector<VertexInAmbientOcclusion> vertices;
 				std::vector<uint32> indices;
+				static const int SAMPLE_COUNT=128;
 			};
 
 			// class representing a shadow map
@@ -61,6 +65,11 @@ namespace xtest {
 				float Radius() const;
 				float Power() const;*/
 
+				float m_occlusionRadius = 0.5f;
+				float m_occlusionFadeStart = 0.2f;
+				float m_occlusionFadeEnd = 2.0f;
+				float m_surfaceEpsilon = 0.05f;
+
 			private:
 				SSAOData m_vs_data;
 				Microsoft::WRL::ComPtr<ID3D11Buffer> m_d3dVertexBuffer;
@@ -68,6 +77,8 @@ namespace xtest {
 
 				uint32 m_height;
 				uint32 m_width;
+
+				
 				/*uint32 m_noise_size;
 				uint32 m_kernel_size;
 				float m_radius;

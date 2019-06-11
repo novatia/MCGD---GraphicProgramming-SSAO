@@ -242,8 +242,8 @@ void SSAODemoApp::OnMouseMove(const DirectX::XMINT2& movement, const DirectX::XM
 
 		m_shadowMap.SetLight(m_dirKeyLight.dirW);
 	}
-
 }
+
 
 
 void SSAODemoApp::OnKeyStatusChange(input::Key key, const input::KeyStatus& status)
@@ -252,13 +252,43 @@ void SSAODemoApp::OnKeyStatusChange(input::Key key, const input::KeyStatus& stat
 	{
 		m_camera.SetPivot({ 5.f, 4.f, -5.f });
 	}
+
 	else if (key == input::Key::F1 && status.isDown)
 	{
 		m_rarelyChangedData.useShadowMap = !m_rarelyChangedData.useShadowMap;
 		m_isRarelyChangedDataDirty = true;
 	}
-}
 
+	if (key == input::Key::U && status.isDown)
+	{
+		m_SSAOMap.m_occlusionRadius += 0.1;
+	}
+
+	if (key == input::Key::Y && status.isDown)
+	{
+		m_SSAOMap.m_occlusionRadius -= 0.1;
+	}
+
+	if (key == input::Key::J && status.isDown)
+	{
+		m_SSAOMap.m_occlusionFadeStart += 0.1;
+	}
+
+	if (key == input::Key::H && status.isDown)
+	{
+		m_SSAOMap.m_occlusionFadeStart -= 0.1;
+	}
+
+	if (key == input::Key::M && status.isDown)
+	{
+		m_SSAOMap.m_occlusionFadeEnd += 0.1;
+	}
+
+	if (key == input::Key::N && status.isDown)
+	{
+		m_SSAOMap.m_occlusionFadeEnd -= 0.1;
+	}
+}
 
 void SSAODemoApp::UpdateScene(float deltaSeconds)
 {
@@ -284,7 +314,6 @@ void SSAODemoApp::UpdateScene(float deltaSeconds)
 
 }
 
-
 void SSAODemoApp::RenderScene()
 {
 
@@ -308,7 +337,7 @@ void SSAODemoApp::RenderScene()
 	m_d3dAnnotation->BeginEvent(L"normal_depth-map");
 	m_normalDepthPass.Bind();
 	m_normalDepthPass.GetState()->ClearDepthOnly();
-
+	m_normalDepthPass.GetState()->ClearRenderTarget(DirectX::Colors::Black);
 	// draw objects
 	for (render::Renderable& renderable : m_objects)
 	{
@@ -326,6 +355,8 @@ void SSAODemoApp::RenderScene()
 	m_SSAOPass.Bind();
 
 	//m_SSAOPass.GetState()->ClearDepthOnly();
+	m_SSAOPass.GetState()->ClearRenderTarget(DirectX::Colors::White);
+
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, m_randomVecMap.AsShaderView());
 
@@ -405,28 +436,24 @@ SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusio
 	XMMATRIX PT = XMMatrixMultiply(P,T);
 
 	XMStoreFloat4x4(&data.viewToTexSpace, XMMatrixTranspose(PT));
+
 	data.frustumCorners[0] = m_frustumFarCorner[0];
 	data.frustumCorners[1] = m_frustumFarCorner[1];
 	data.frustumCorners[2] = m_frustumFarCorner[2];
 	data.frustumCorners[3] = m_frustumFarCorner[3];
-	data.offsetVectors[0] = m_offsets[0];
-	data.offsetVectors[1] = m_offsets[1];
-	data.offsetVectors[2] = m_offsets[2];
-	data.offsetVectors[3] = m_offsets[3];
-	data.offsetVectors[4] = m_offsets[4];
-	data.offsetVectors[5] = m_offsets[5];
-	data.offsetVectors[6] = m_offsets[6];
-	data.offsetVectors[7] = m_offsets[7];
-	data.offsetVectors[8] = m_offsets[8];
-	data.offsetVectors[9] = m_offsets[9];
-	data.offsetVectors[10] = m_offsets[10];
-	data.offsetVectors[11] = m_offsets[11];
-	data.offsetVectors[12] = m_offsets[12];
-	data.offsetVectors[13] = m_offsets[13];
+
+	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++)
+	{
+		data.offsetVectors[i] = m_offsets[i];
+	}
+
+	data.occlusionFadeEnd = m_SSAOMap.m_occlusionFadeEnd;
+	data.occlusionFadeStart = m_SSAOMap.m_occlusionFadeStart;
+	data.occlusionRadius = m_SSAOMap.m_occlusionRadius;
+	data.surfaceEpsilon = m_SSAOMap.m_surfaceEpsilon;
 
 	return data;
 }
-
 
 SSAODemoApp::PerObjectShadowMapData SSAODemoApp::ToPerObjectShadowMapData(const render::Renderable& renderable, const std::string& meshName)
 {
@@ -476,8 +503,14 @@ void SSAODemoApp::BuildOffsetVectors()
 	m_offsets[11] = DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f);
 	m_offsets[12] = DirectX::XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
 	m_offsets[13] = DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 0.0f);
+	
+	for (int i = 14; i < SSAOData::SAMPLE_COUNT; i++) 
+	{
+		m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f));
+	}
+
 	srand((unsigned) std::time(NULL));
-	for (int i = 0; i < 14; i++)
+	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++)
 	{
 		float s = RandomFloat(0.25f, 1.0f);
 		XMVECTOR v = s * XMVector4Normalize(XMLoadFloat4(&m_offsets[i]));

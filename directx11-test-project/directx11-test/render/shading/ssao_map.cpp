@@ -23,8 +23,8 @@ bool xtest::render::shading::SSAOData::VertexInAmbientOcclusion::operator==(cons
 
 xtest::render::shading::SSAOMap::SSAOMap(uint32 width, uint32 height)
 {
-	m_width = width / 2;
-	m_height = height /2;
+	m_width = width;
+	m_height = height;
 
 	//m_kernel_size = kernel_size;
 	//m_noise_size = noise_size;
@@ -65,8 +65,8 @@ void xtest::render::shading::SSAOMap::Init()
 
 	//BIND VERTEX INPUT
 	 
-	SSAOData::VertexInAmbientOcclusion *v1 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 0.0f));
-	SSAOData::VertexInAmbientOcclusion *v2 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(-1.0f, +1.0f, 0.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 1.0f));
+	SSAOData::VertexInAmbientOcclusion *v1 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 1.0f));
+	SSAOData::VertexInAmbientOcclusion *v2 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(-1.0f, +1.0f, 0.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 0.0f));
 	SSAOData::VertexInAmbientOcclusion *v3 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(+1.0f, +1.0f, 0.0f), DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 0.0f));
 	SSAOData::VertexInAmbientOcclusion *v4 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(+1.0f, -1.0f, 0.0f), DirectX::XMFLOAT3(3.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 
@@ -93,7 +93,6 @@ void xtest::render::shading::SSAOMap::Init()
 	D3D11_SUBRESOURCE_DATA vertexInitData;
 	vertexInitData.pSysMem = &m_vs_data.vertices[0];
 	XTEST_D3D_CHECK(service::Locator::GetD3DDevice()->CreateBuffer(&vertexBufferDesc, &vertexInitData, &m_d3dVertexBuffer));
-
 
 	// index buffer
 	D3D11_BUFFER_DESC indexBufferDesc;

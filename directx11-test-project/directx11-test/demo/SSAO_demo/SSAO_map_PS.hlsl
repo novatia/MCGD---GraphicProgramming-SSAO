@@ -1,4 +1,4 @@
-#define sampleCount 14
+#define SAMPLE_COUNT 128
 
 struct Material
 {
@@ -17,12 +17,12 @@ struct VertexOutAmbientOcclusion
 cbuffer PerObjectCBAmbientOcclusion : register(b3)
 {
 	float4x4 viewToTexSpace; // Proj*Tex
-	float4 offsetVectors[14];
+	float4 offsetVectors[SAMPLE_COUNT];
 	float4 frustumCorners[4];
-	float occlusionRadius = 0.5f;
-	float occlusionFadeStart = 0.2f;
-	float occlusionFadeEnd = 2.0f;
-	float surfaceEpsilon = 0.05f;
+	float occlusionRadius;
+	float occlusionFadeStart;
+	float occlusionFadeEnd;
+	float surfaceEpsilon;
 };
 
 Texture2D normalDepthMap : register(t11);
@@ -50,7 +50,8 @@ float main(VertexOutAmbientOcclusion pin) : SV_TARGET
 	float3 p = (pz / pin.toFarPlane.z)*pin.toFarPlane;
 	float3 randVec = 2.0f * randomVecMap.SampleLevel(samRandomVec, 4.0f*pin.uv, 0.0f).rgb - 1.0f;
 	float occlusionSum = 0.0f;
-	for (int i = 0; i < sampleCount; ++i)
+
+	for (int i = 0; i < SAMPLE_COUNT; ++i)
 	{
 		float3 offset = reflect(offsetVectors[i].xyz, randVec);
 		float flip = sign(dot(offset, n));
@@ -64,7 +65,8 @@ float main(VertexOutAmbientOcclusion pin) : SV_TARGET
 		float occlusion = dp * OcclusionFunction(distZ);
 		occlusionSum += occlusion;
 	}
-	occlusionSum /= sampleCount;
+
+	occlusionSum /= SAMPLE_COUNT;
 	float access = 1.0f - occlusionSum;
 	return saturate(pow(access, 4.0f));
 }

@@ -16,7 +16,6 @@
 #include <render/shading/random_vec_map.h>
 
 
-
 namespace xtest {
 	namespace demo {
 
@@ -83,12 +82,13 @@ namespace xtest {
 			struct PerObjectCBAmbientOcclusion
 			{
 				DirectX::XMFLOAT4X4 viewToTexSpace; // Proj*Tex
-				DirectX::XMFLOAT4 offsetVectors[14];
+				DirectX::XMFLOAT4 offsetVectors[xtest::render::shading::SSAOData::SAMPLE_COUNT];
 				DirectX::XMFLOAT4 frustumCorners[4];
-				float occlusionRadius = 0.5f;
-				float occlusionFadeStart = 0.2f;
-				float occlusionFadeEnd = 2.0f;
-				float surfaceEpsilon = 0.05f;
+
+				float occlusionRadius;
+				float occlusionFadeStart ;
+				float occlusionFadeEnd ;
+				float surfaceEpsilon ;
 			};
 
 			struct BlurCBuffer // new struct
@@ -151,7 +151,7 @@ namespace xtest {
 			int m_renderTargetWidth;
 			int m_renderTargetHeight;
 			DirectX::XMFLOAT4 m_frustumFarCorner[4];
-			DirectX::XMFLOAT4 m_offsets[14];
+			DirectX::XMFLOAT4 m_offsets[xtest::render::shading::SSAOData::SAMPLE_COUNT];
 		};
 
 	} // demo
