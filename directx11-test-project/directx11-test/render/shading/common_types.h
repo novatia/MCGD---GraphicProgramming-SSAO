@@ -48,6 +48,7 @@ namespace shading {
 		common_textures = 0,
 		normal_depth_map = 1,
 		random_vec = 2,
+		ssao_map = 3,
 		shadow_map = 10,
 		unknown
 	};

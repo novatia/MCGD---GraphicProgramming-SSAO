@@ -116,6 +116,28 @@ namespace shading {
 		}
 	};
 
+	class SSAOMapSampler : public Sampler
+	{
+	public:
+		virtual void Init() override
+		{
+			// already initialized
+			if (m_d3dTextureSampler)
+			{
+				return;
+			}
+
+			D3D11_SAMPLER_DESC samplerDesc;
+			ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
+			samplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+			samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+			samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+			samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+			samplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+
+			XTEST_D3D_CHECK(service::Locator::GetD3DDevice()->CreateSamplerState(&samplerDesc, &m_d3dTextureSampler));
+		}
+	};
 
 } //shading
 } //render

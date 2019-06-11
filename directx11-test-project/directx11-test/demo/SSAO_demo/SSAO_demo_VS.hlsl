@@ -22,6 +22,7 @@ struct VertexOut
 	float4 tangentW : TANGENT;
 	float2 uv : TEXCOORD;
 	float4 shadowPosH : SHADOWPOS;
+	float4 ssaoPosH : TEXCOORD1;
 };
 
 
@@ -35,6 +36,11 @@ cbuffer PerObjectCB : register(b0)
 	Material material;
 };
 
+cbuffer PerFrameCMAmbientOcclusion : register(b4)
+{
+	float4x4 WVPT_ssao;
+}
+
 VertexOut main(VertexIn vin)
 {
 	VertexOut vout;
@@ -42,7 +48,7 @@ VertexOut main(VertexIn vin)
 	vout.posW = mul(float4(vin.posL, 1.0f), W).xyz;
 	vout.normalW = mul(vin.normalL, (float3x3)W_inverseTraspose);
 	vout.tangentW = float4(mul(vin.tangentL.xyz, (float3x3)W), vin.tangentL.w);
-
+	vout.ssaoPosH = mul(float4(vin.posL, 1.0f), WVPT_ssao);
 	vout.posH = mul(float4(vin.posL, 1.0f), WVP);
 	vout.uv = mul(float4(vin.uv, 0.f, 1.f), TexcoordMatrix).xy;
 	vout.shadowPosH = mul(float4(vin.posL, 1.0f), WVPT_shadowMap);
