@@ -37,6 +37,7 @@ cbuffer PerObjectCB : register(b0)
 	float4x4 WVP;
 	float4x4 TexcoordMatrix;
 	float4x4 WVPT_shadowMap;
+	float4x4 WVPT_ssao;
 	Material material;
 };
 
@@ -56,6 +57,7 @@ cbuffer RarelyChangedCB : register(b2)
 Texture2D diffuseTexture : register(t0);
 Texture2D normalTexture : register(t1);
 Texture2D glossTexture : register(t2);
+
 Texture2D shadowMap : register(t10);
 Texture2D ssaoMap : register(t11);
 
@@ -63,17 +65,12 @@ SamplerState textureSampler : register(s0);
 SamplerState SSAOSampler : register(s3);
 SamplerComparisonState shadowSampler : register(s10);
 
-
-
-
-
 float4 CalculateAmbient(float4 matAmbient, float4 lightAmbient)
 {
 	return matAmbient * lightAmbient;
 }
 
-
-void CalculateDiffuseAndSpecular(
+void CalculateDiffuseAndSpecular (
 	float3 toLightW,
 	float3 normalW,
 	float3 toEyeW,
@@ -83,7 +80,7 @@ void CalculateDiffuseAndSpecular(
 	float4 lightSpec,
 	float glossSample,
 	inout float4 diffuseColor,
-	inout float4 specularColor)
+	inout float4 specularColor )
 {
 
 	// diffuse factor

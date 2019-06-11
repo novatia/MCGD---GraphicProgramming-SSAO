@@ -55,6 +55,7 @@ namespace xtest {
 				DirectX::XMFLOAT4X4 WVP;
 				DirectX::XMFLOAT4X4 TexcoordMatrix;
 				DirectX::XMFLOAT4X4 WVPT_shadowMap;
+				DirectX::XMFLOAT4X4 WVPT_ssao;
 				Material material;
 			};
 
@@ -76,7 +77,8 @@ namespace xtest {
 			{
 				int32 useShadowMap;
 				float shadowMapResolution;
-				float _explicit_pad_[2];
+				int32 useSSAOMap;
+				float _explicit_pad_;
 			};
 
 			struct PerObjectCBAmbientOcclusion

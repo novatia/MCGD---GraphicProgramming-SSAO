@@ -71,6 +71,7 @@ void SSAODemoApp::InitLights()
 	XMStoreFloat3(&m_dirFillLight.dirW, XMVector3Transform(XMLoadFloat3(&m_dirKeyLight.dirW), XMMatrixRotationY(math::ToRadians(45.f))));
 
 	m_rarelyChangedData.useShadowMap = true;
+	m_rarelyChangedData.useSSAOMap = true;
 }
 
 
@@ -155,6 +156,7 @@ void SSAODemoApp::InitRenderTechnique()
 		pixelShader->AddConstantBuffer(CBufferFrequency::rarely_changed, std::make_unique<CBuffer<RarelyChangedData>>());
 		pixelShader->AddSampler(SamplerUsage::common_textures, std::make_shared<AnisotropicSampler>());
 		pixelShader->AddSampler(SamplerUsage::shadow_map, std::make_shared<PCFSampler>());
+		pixelShader->AddSampler(SamplerUsage::ssao_map, std::make_shared<SSAOMapSampler>());
 
 		m_renderPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), m_backBufferView.Get(), m_depthBufferView.Get()));
 		m_renderPass.SetVertexShader(vertexShader);
@@ -261,32 +263,38 @@ void SSAODemoApp::OnKeyStatusChange(input::Key key, const input::KeyStatus& stat
 
 	if (key == input::Key::U && status.isDown)
 	{
-		m_SSAOMap.m_occlusionRadius += 0.1;
+		m_SSAOMap.m_occlusionRadius += 0.1f;
 	}
 
 	if (key == input::Key::Y && status.isDown)
 	{
-		m_SSAOMap.m_occlusionRadius -= 0.1;
+		m_SSAOMap.m_occlusionRadius -= 0.1f;
 	}
 
 	if (key == input::Key::J && status.isDown)
 	{
-		m_SSAOMap.m_occlusionFadeStart += 0.1;
+		m_SSAOMap.m_occlusionFadeStart += 0.1f;
 	}
 
 	if (key == input::Key::H && status.isDown)
 	{
-		m_SSAOMap.m_occlusionFadeStart -= 0.1;
+		m_SSAOMap.m_occlusionFadeStart -= 0.1f;
 	}
 
 	if (key == input::Key::M && status.isDown)
 	{
-		m_SSAOMap.m_occlusionFadeEnd += 0.1;
+		m_SSAOMap.m_occlusionFadeEnd += 0.1f;
 	}
 
 	if (key == input::Key::N && status.isDown)
 	{
-		m_SSAOMap.m_occlusionFadeEnd -= 0.1;
+		m_SSAOMap.m_occlusionFadeEnd -= 0.1f;
+	}
+
+	if (key == input::Key::F2 && status.isDown)
+	{
+		m_rarelyChangedData.useSSAOMap = !m_rarelyChangedData.useSSAOMap;
+		m_isRarelyChangedDataDirty = true;
 	}
 }
 
@@ -389,10 +397,13 @@ void SSAODemoApp::RenderScene()
 			m_renderPass.GetPixelShader()->BindTexture(TextureUsage::color, renderable.GetTextureView(TextureUsage::color, meshName));
 			m_renderPass.GetPixelShader()->BindTexture(TextureUsage::normal, renderable.GetTextureView(TextureUsage::normal, meshName));
 			m_renderPass.GetPixelShader()->BindTexture(TextureUsage::glossiness, renderable.GetTextureView(TextureUsage::glossiness, meshName));
+			m_renderPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, renderable.GetTextureView(TextureUsage::ssao_map, meshName));
 			renderable.Draw(meshName);
 		}
 	}
+
 	m_renderPass.GetPixelShader()->BindTexture(TextureUsage::shadow_map, nullptr); // explicit unbind the shadow map to suppress warning
+	m_renderPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, nullptr);
 	m_d3dAnnotation->EndEvent();
 
 	XTEST_D3D_CHECK(m_swapChain->Present(0, 0));
@@ -410,11 +421,22 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 	XMMATRIX WVP = W * V*P;
 	XMMATRIX WVPT_shadowMap = W * m_shadowMap.VPTMatrix();
 
+
+	static const XMMATRIX T1(
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f);
+
+	XMMATRIX WVPT_ssao = W * V * P * T1;
+
 	XMStoreFloat4x4(&data.W, XMMatrixTranspose(W));
 	XMStoreFloat4x4(&data.WVP, XMMatrixTranspose(WVP));
 	XMStoreFloat4x4(&data.W_inverseTraspose, XMMatrixInverse(nullptr, W));
 	XMStoreFloat4x4(&data.TexcoordMatrix, XMMatrixTranspose(T));
 	XMStoreFloat4x4(&data.WVPT_shadowMap, XMMatrixTranspose(WVPT_shadowMap));
+	XMStoreFloat4x4(&data.WVPT_ssao, XMMatrixTranspose(WVPT_ssao));
+
 	data.material.ambient = renderable.GetMaterial(meshName).ambient;
 	data.material.diffuse = renderable.GetMaterial(meshName).diffuse;
 	data.material.specular = renderable.GetMaterial(meshName).specular;

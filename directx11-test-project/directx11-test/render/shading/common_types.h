@@ -37,6 +37,7 @@ namespace shading {
 		shadow_map = 10,
 		normal_depth_map = 11,
 		random_vec_map = 12,
+		ssao_map = 13,
 		uknown
 	};
 
