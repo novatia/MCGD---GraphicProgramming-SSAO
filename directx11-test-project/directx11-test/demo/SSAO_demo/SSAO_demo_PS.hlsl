@@ -50,6 +50,7 @@ cbuffer RarelyChangedCB : register(b2)
 {
 	bool useShadowMap;
 	float shadowMapResolution;
+	bool useSSAOMap;
 }
 
 Texture2D diffuseTexture : register(t0);
@@ -167,11 +168,11 @@ void DirectionalLightContribution(Material mat, DirectionalLight light, float3 n
 float4 main(VertexOut pin) : SV_TARGET
 {
 	pin.normalW = normalize(pin.normalW);
-
+	float ambientAccess = 1.0f;
 	if (useSSAOMap)
 	{
 		pin.ssaoPosH /= pin.ssaoPosH.w;
-		float ambientAccess = ssaoMap.Sample(SSAOSampler, pin.ssaoPosH.xy, 0.0f).r;
+		ambientAccess = ssaoMap.Sample(SSAOSampler, pin.ssaoPosH.xy, 0.0f).r;
 	}
 
 	// make sure tangentW is still orthogonal to normalW and is unit leght even
@@ -237,15 +238,10 @@ float4 main(VertexOut pin) : SV_TARGET
 	for (uint i = 0; i < DIRECTIONAL_LIGHT_COUNT; i++)
 	{
 		DirectionalLightContribution(material, dirLights[i], bumpNormalW, toEyeW, glossSample, ambient, diffuse, specular);
-		if (useSSAOMap)
-		{
-			totalAmbient += ambient * ambientAccess;
-		}
-		else
-		{
-			totalAmbient += ambient;
-		}
 		
+		totalAmbient += ambient * ambientAccess;
+		
+	
 		totalDiffuse += diffuse * litFactors[i];
 		totalSpecular += specular * litFactors[i];
 	}
