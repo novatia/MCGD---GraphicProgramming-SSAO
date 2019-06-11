@@ -64,8 +64,8 @@ void RandomVectorMap::Init()
 	initData.pSysMem = (void*)color;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
-	XTEST_ASSERT(d3dDevice->CreateTexture2D(&texDesc, &initData, &texture));
-	XTEST_ASSERT(d3dDevice->CreateShaderResourceView(texture.Get(), 0, &m_shaderView));
+	HRESULT r1 = d3dDevice->CreateTexture2D(&texDesc, &initData, &texture);
+	HRESULT r2 = d3dDevice->CreateShaderResourceView(texture.Get(), 0, &m_shaderView);
 }
 
 
@@ -75,15 +75,10 @@ ID3D11ShaderResourceView* RandomVectorMap::AsShaderView()
 	return m_shaderView.Get();
 }
 
-
-
 D3D11_VIEWPORT RandomVectorMap::Viewport() const
 {
 	return m_viewport;
 }
-
-
-
 
 uint32 RandomVectorMap::Width() const
 {

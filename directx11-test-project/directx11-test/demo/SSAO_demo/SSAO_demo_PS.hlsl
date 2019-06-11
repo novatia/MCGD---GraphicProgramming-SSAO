@@ -14,16 +14,6 @@ struct VertexOutAmbientOcclusion
 	float2 uv : TEXCOORD1;
 };
 
-cbuffer PerObjectCB : register(b0)
-{
-	float4x4 W;
-	float4x4 W_inverseTraspose;
-	float4x4 WVP;
-	float4x4 TexcoordMatrix;
-	float4x4 WVPT_shadowMap;
-	Material material;
-};
-
 cbuffer PerObjectCBAmbientOcclusion : register(b3)
 {
 	float4x4 viewToTexSpace; // Proj*Tex
@@ -35,8 +25,8 @@ cbuffer PerObjectCBAmbientOcclusion : register(b3)
 	float surfaceEpsilon = 0.05f;
 };
 
-Texture2D normalDepthMap : register(t3);
-Texture2D randomVecMap : register(t4);
+Texture2D normalDepthMap : register(t11);
+Texture2D randomVecMap : register(t12);
 SamplerState samNormalDepth : register(s1);
 SamplerState samRandomVec : register(s2);
 
