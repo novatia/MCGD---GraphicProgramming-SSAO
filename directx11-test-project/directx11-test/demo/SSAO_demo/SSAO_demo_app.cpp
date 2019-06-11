@@ -48,7 +48,7 @@ void SSAODemoApp::Init()
 {
 	application::DirectxApp::Init();
 
-	m_camera.SetPerspectiveProjection(math::ToRadians(45.f), AspectRatio(), 1.f, 1000.f);
+	m_camera.SetPerspectiveProjection(math::ToRadians(45.f), AspectRatio(), 0.2f, 100.f);
 
 	InitLights();
 	InitRenderTechnique();
