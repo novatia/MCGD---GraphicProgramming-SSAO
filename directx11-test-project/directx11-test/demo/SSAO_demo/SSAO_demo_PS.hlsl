@@ -59,6 +59,7 @@ Texture2D shadowMap : register(t10);
 Texture2D ssaoMap : register(t11);
 
 SamplerState textureSampler : register(s0);
+SamplerState SSAOSampler : register(s3);
 SamplerComparisonState shadowSampler : register(s10);
 
 
@@ -170,7 +171,7 @@ float4 main(VertexOut pin) : SV_TARGET
 	if (useSSAOMap)
 	{
 		pin.ssaoPosH /= pin.ssaoPosH.w;
-		float ambientAccess = ssaoMap.Sample(textureSampler, pin.ssaoPosH.xy, 0.0f).r;
+		float ambientAccess = ssaoMap.Sample(SSAOSampler, pin.ssaoPosH.xy, 0.0f).r;
 	}
 
 	// make sure tangentW is still orthogonal to normalW and is unit leght even
