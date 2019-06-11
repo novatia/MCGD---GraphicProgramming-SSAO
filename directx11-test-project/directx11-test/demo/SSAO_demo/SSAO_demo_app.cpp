@@ -136,11 +136,7 @@ void SSAODemoApp::InitRenderTechnique()
 		pixelShader->AddSampler(SamplerUsage::normal_depth_map, std::make_shared<NormalDepthSampler>());
 		pixelShader->AddSampler(SamplerUsage::random_vec, std::make_shared<RandomVecSampler>());
 
-<<<<<<< HEAD
 		m_SSAOPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), m_SSAOMap.AsRenderTargetView(), nullptr));
-=======
-		m_SSAOPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(),nullptr, m_SSAOMap.AsDepthStencilView()));
->>>>>>> 3d4b28dc102f7ca93270a7144edd80163cf107db
 		m_SSAOPass.SetVertexShader(vertexShader);
 		m_SSAOPass.SetPixelShader(pixelShader);
 		m_SSAOPass.Init();
