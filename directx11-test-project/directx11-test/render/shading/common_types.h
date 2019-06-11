@@ -33,9 +33,10 @@ namespace shading {
 		color = 0,
 		normal = 1,
 		glossiness = 2,
-		normal_depth_map = 3,
-		random_vec_map = 4,
+		
 		shadow_map = 10,
+		normal_depth_map = 11,
+		random_vec_map = 12,
 		uknown
 	};
 

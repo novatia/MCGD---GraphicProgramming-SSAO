@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include <service/locator.h>
 #include "random_vec_map.h"
-#include <DirectXPackedVector.h>
-
 
 using namespace xtest::render::shading;
 using namespace DirectX;
@@ -72,8 +70,8 @@ void RandomVectorMap::Init()
  	Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
 	HRESULT hr = d3dDevice->CreateTexture2D(&textureDesc, &initData, tex.GetAddressOf());
 	//S_OK
-	delete[] color;
 
+	delete[] color;
 	HRESULT hrsh = d3dDevice->CreateShaderResourceView( tex.Get(), 0, &m_shaderView);
 	//S_OK
 }

@@ -105,7 +105,7 @@ void SSAODemoApp::InitRenderTechnique()
 		//m_rarelyChangedData.shadowMapResolution = float(m_shadowMap.Resolution());
 
 		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_VS.cso")));
-		vertexShader->SetVertexInput(std::make_shared<PosOnlyVertexInput>());
+		vertexShader->SetVertexInput(std::make_shared<MeshDataVertexInput>());
 		vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
 
 		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_PS.cso")));
@@ -128,7 +128,7 @@ void SSAODemoApp::InitRenderTechnique()
 		m_SSAOMap.Init();
 
 		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_demo_VS.cso")));
-		vertexShader->SetVertexInput(std::make_shared<PosOnlyVertexInput>());
+		vertexShader->SetVertexInput(std::make_shared<MeshDataVertexInput>());
 		vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
 		vertexShader->AddConstantBuffer(CBufferFrequency::per_object_ambient_occlusion, std::make_unique<CBuffer<PerObjectCBAmbientOcclusion>>());
 
@@ -138,7 +138,7 @@ void SSAODemoApp::InitRenderTechnique()
 		pixelShader->AddSampler(SamplerUsage::normal_depth_map, std::make_shared<NormalDepthSampler>());
 		pixelShader->AddSampler(SamplerUsage::random_vec, std::make_shared<RandomVecSampler>());
 
-		m_SSAOPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), nullptr, m_SSAOMap.AsDepthStencilView()));
+		m_SSAOPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(),nullptr, m_SSAOMap.AsDepthStencilView()));
 		m_SSAOPass.SetVertexShader(vertexShader);
 		m_SSAOPass.SetPixelShader(pixelShader);
 		m_SSAOPass.Init();
@@ -147,11 +147,11 @@ void SSAODemoApp::InitRenderTechnique()
 
 	// render pass
 	{
-		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\shadow_demo_VS.cso")));
+		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\SSAO_demo_VS.cso")));
 		vertexShader->SetVertexInput(std::make_shared<MeshDataVertexInput>());
 		vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
 
-		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\shadow_demo_PS.cso")));
+		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\SSAO_demo_PS.cso")));
 		pixelShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
 		pixelShader->AddConstantBuffer(CBufferFrequency::per_frame, std::make_unique<CBuffer<PerFrameData>>());
 		pixelShader->AddConstantBuffer(CBufferFrequency::rarely_changed, std::make_unique<CBuffer<RarelyChangedData>>());
@@ -306,6 +306,7 @@ void SSAODemoApp::RenderScene()
 	}
 	m_d3dAnnotation->EndEvent();
 
+	
 	m_d3dAnnotation->BeginEvent(L"normal_depth-map");
 	m_normalDepthPass.Bind();
 	m_normalDepthPass.GetState()->ClearDepthOnly();
@@ -322,11 +323,12 @@ void SSAODemoApp::RenderScene()
 	}
 	m_d3dAnnotation->EndEvent();
 
+	
 	m_d3dAnnotation->BeginEvent(L"ambient-occlusion-pass");
 	m_SSAOPass.Bind();
 	m_SSAOPass.GetState()->ClearDepthOnly();
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
-	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, m_randomVecMap.AsShaderView()); // randomVecMap?
+	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, m_randomVecMap.AsShaderView());
 
 	// draw objects
 	for (render::Renderable& renderable : m_objects)
@@ -335,17 +337,21 @@ void SSAODemoApp::RenderScene()
 		{
 			PerObjectData data = ToPerObjectData(renderable, meshName);
 			PerObjectCBAmbientOcclusion data1 = ToPerObjectAmbientOcclusion(renderable, meshName);
+
 			m_SSAOPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object)->UpdateBuffer(data);
 			m_SSAOPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data1);
-			m_SSAOPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data1);
+			
 			m_SSAOPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_object)->UpdateBuffer(data);
+			m_SSAOPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data1);
+
 			renderable.Draw(meshName);
 		}
 	}
+	
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, nullptr);
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, nullptr); // randomVecMap?
 	m_d3dAnnotation->EndEvent();
-
+	
 	m_d3dAnnotation->BeginEvent(L"render-scene");
 	m_renderPass.Bind();
 	m_renderPass.GetState()->ClearDepthOnly();

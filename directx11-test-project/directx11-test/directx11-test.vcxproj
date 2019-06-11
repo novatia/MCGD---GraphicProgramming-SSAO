@@ -273,7 +273,6 @@
     <FxCompile Include="demo\SSAO_demo\SSAO_demo_PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="demo\SSAO_demo\SSAO_demo_shadowmap_VS.hlsl" />
     <FxCompile Include="demo\SSAO_demo\SSAO_demo_VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
