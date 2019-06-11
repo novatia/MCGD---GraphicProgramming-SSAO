@@ -63,10 +63,9 @@ void RandomVectorMap::Init()
 
 	initData.pSysMem = color;
 
-	ID3D11Texture2D* tex = 0;
-	XTEST_ASSERT(d3dDevice->CreateTexture2D(&texDesc, &initData, &tex));
-
-	XTEST_ASSERT(d3dDevice->CreateShaderResourceView(tex, 0, &m_shaderView));
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
+	XTEST_ASSERT(d3dDevice->CreateTexture2D(&texDesc, &initData, &texture));
+	XTEST_ASSERT(d3dDevice->CreateShaderResourceView(texture.Get(), 0, &m_shaderView));
 }
 
 
