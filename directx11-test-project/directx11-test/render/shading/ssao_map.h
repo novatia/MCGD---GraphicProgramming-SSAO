@@ -5,6 +5,23 @@ namespace xtest {
 	namespace render {
 		namespace shading {
 
+			struct SSAOData
+			{
+				struct VertexInAmbientOcclusion
+				{
+
+					VertexInAmbientOcclusion(DirectX::XMFLOAT3, DirectX::XMFLOAT3, DirectX::XMFLOAT2);
+
+					DirectX::XMFLOAT3 pos;
+					DirectX::XMFLOAT3 toFarPlaneIndex;
+					DirectX::XMFLOAT2 uv;
+
+					bool operator==(const VertexInAmbientOcclusion& other) const;
+				};
+
+				std::vector<VertexInAmbientOcclusion> vertices;
+				std::vector<uint32> indices;
+			};
 			// class representing a shadow map
 			class SSAOMap
 			{
@@ -41,6 +58,10 @@ namespace xtest {
 				float Power() const;*/
 
 			private:
+				SSAOData m_vs_data;
+				Microsoft::WRL::ComPtr<ID3D11Buffer> m_d3dVertexBuffer;
+				Microsoft::WRL::ComPtr<ID3D11Buffer> m_d3dIndexBuffer;
+
 				uint32 m_height;
 				uint32 m_width;
 				/*uint32 m_noise_size;

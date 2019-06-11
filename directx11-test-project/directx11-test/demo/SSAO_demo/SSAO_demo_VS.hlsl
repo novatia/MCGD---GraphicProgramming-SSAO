@@ -10,7 +10,7 @@ struct VertexInAmbientOcclusion
 {
 	float3 posL : POSITION;
 	float3 toFarPlaneIndex : NORMAL;
-	float4 uv : TANGENT;
+	float4 uv : TEXCOORD;
 };
 
 struct VertexOutAmbientOcclusion
@@ -44,8 +44,10 @@ cbuffer PerObjectCBAmbientOcclusion : register(b3)
 VertexOutAmbientOcclusion main(VertexInAmbientOcclusion vin)
 {
 	VertexOutAmbientOcclusion vout;
+
 	vout.posH = float4(vin.posL, 1.0f);
-	vout.uv = vin.uv;
+	vout.uv = vin.uv.xy;
 	vout.toFarPlane = frustumCorners[vin.toFarPlaneIndex.x].xyz;
+
 	return vout;
 }

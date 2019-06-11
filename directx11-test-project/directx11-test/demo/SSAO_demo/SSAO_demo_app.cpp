@@ -126,7 +126,7 @@ void SSAODemoApp::InitRenderTechnique()
 		m_SSAOMap.Init();
 
 		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_demo_VS.cso")));
-		vertexShader->SetVertexInput(std::make_shared<MeshDataVertexInput>());
+		vertexShader->SetVertexInput(std::make_shared<VertexInputAmbientOcclusion>());
 		vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
 		vertexShader->AddConstantBuffer(CBufferFrequency::per_object_ambient_occlusion, std::make_unique<CBuffer<PerObjectCBAmbientOcclusion>>());
 

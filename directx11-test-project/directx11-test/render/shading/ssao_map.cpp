@@ -2,6 +2,25 @@
 #include "ssao_map.h"
 #include <service/locator.h>
 
+xtest::render::shading::SSAOData::VertexInAmbientOcclusion::VertexInAmbientOcclusion(DirectX::XMFLOAT3 inPos, DirectX::XMFLOAT3 inToFarPlaneIndex, DirectX::XMFLOAT2 inUv)
+{
+	pos = inPos;
+	toFarPlaneIndex = inToFarPlaneIndex;
+	uv = inUv;
+}
+
+bool xtest::render::shading::SSAOData::VertexInAmbientOcclusion::operator==(const VertexInAmbientOcclusion & other) const
+{
+	return pos.x == other.pos.x
+		&& pos.y == other.pos.y
+		&& pos.z == other.pos.z
+		&& toFarPlaneIndex.x == other.toFarPlaneIndex.x
+		&& toFarPlaneIndex.y == other.toFarPlaneIndex.y
+		&& toFarPlaneIndex.z == other.toFarPlaneIndex.z
+		&& uv.x == other.uv.x
+		&& uv.y == other.uv.y;
+}
+
 xtest::render::shading::SSAOMap::SSAOMap(uint32 width, uint32 height)
 {
 	m_width = width / 2;
@@ -42,6 +61,52 @@ void xtest::render::shading::SSAOMap::Init()
 	XTEST_D3D_CHECK(d3dDevice->CreateShaderResourceView(texture.Get(), 0, &m_shaderView));
 
 	XTEST_D3D_CHECK(d3dDevice->CreateRenderTargetView(texture.Get(), 0, &m_renderTargetView));
+
+
+	//BIND VERTEX INPUT
+	 
+	SSAOData::VertexInAmbientOcclusion *v1 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 0.0f));
+	SSAOData::VertexInAmbientOcclusion *v2 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(-1.0f, +1.0f, 0.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 1.0f));
+	SSAOData::VertexInAmbientOcclusion *v3 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(+1.0f, +1.0f, 0.0f), DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 0.0f));
+	SSAOData::VertexInAmbientOcclusion *v4 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(+1.0f, -1.0f, 0.0f), DirectX::XMFLOAT3(3.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+
+	m_vs_data.vertices.push_back(*v1);
+	m_vs_data.vertices.push_back(*v2);
+	m_vs_data.vertices.push_back(*v3);
+	m_vs_data.vertices.push_back(*v4);
+
+	m_vs_data.indices.push_back(0);
+	m_vs_data.indices.push_back(1);
+	m_vs_data.indices.push_back(2);
+	m_vs_data.indices.push_back(0);
+	m_vs_data.indices.push_back(2);
+	m_vs_data.indices.push_back(3);
+	
+	D3D11_BUFFER_DESC vertexBufferDesc;
+	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	vertexBufferDesc.ByteWidth = UINT(sizeof(SSAOData::VertexInAmbientOcclusion) * m_vs_data.vertices.size());
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexBufferDesc.CPUAccessFlags = 0;
+	vertexBufferDesc.MiscFlags = 0;
+	vertexBufferDesc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA vertexInitData;
+	vertexInitData.pSysMem = &m_vs_data.vertices[0];
+	XTEST_D3D_CHECK(service::Locator::GetD3DDevice()->CreateBuffer(&vertexBufferDesc, &vertexInitData, &m_d3dVertexBuffer));
+
+
+	// index buffer
+	D3D11_BUFFER_DESC indexBufferDesc;
+	indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	indexBufferDesc.ByteWidth = UINT(sizeof(uint32) * m_vs_data.indices.size());
+	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	indexBufferDesc.CPUAccessFlags = 0;
+	indexBufferDesc.MiscFlags = 0;
+	indexBufferDesc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA indexInitdata;
+	indexInitdata.pSysMem = &m_vs_data.indices[0];
+	XTEST_D3D_CHECK(service::Locator::GetD3DDevice()->CreateBuffer(&indexBufferDesc, &indexInitdata, &m_d3dIndexBuffer));
 }
 
 //void xtest::render::shading::SSAOMap::SetNoiseSize(uint32 noise_size)
