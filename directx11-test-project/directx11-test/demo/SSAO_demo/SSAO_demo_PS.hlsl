@@ -25,6 +25,7 @@ struct VertexOut
 	float4 tangentW : TANGENT;
 	float2 uv : TEXCOORD;
 	float4 shadowPosH : SHADOWPOS;
+	float4 ssaoPosH : TEXCOORD1;
 };
 
 
@@ -55,6 +56,7 @@ Texture2D diffuseTexture : register(t0);
 Texture2D normalTexture : register(t1);
 Texture2D glossTexture : register(t2);
 Texture2D shadowMap : register(t10);
+Texture2D ssaoMap : register(t11);
 
 SamplerState textureSampler : register(s0);
 SamplerComparisonState shadowSampler : register(s10);
@@ -165,79 +167,93 @@ float4 main(VertexOut pin) : SV_TARGET
 {
 	pin.normalW = normalize(pin.normalW);
 
-// make sure tangentW is still orthogonal to normalW and is unit leght even
-// after the rasterizer stage (interpolation) 
-pin.tangentW.xyz = pin.tangentW.xyz - (dot(pin.tangentW.xyz, pin.normalW)*pin.normalW);
-pin.tangentW.xyz = normalize(pin.tangentW.xyz);
-
-
-// bump mapping
-float3 bumpNormalW = BumpNormalW(pin.uv, pin.normalW, pin.tangentW);
-
-
-float litFactor = 1.f;
-if (useShadowMap)
-{
-	litFactor = 0.f;
-
-	pin.shadowPosH.xyz /= pin.shadowPosH.w;
-	float depthNDC = pin.shadowPosH.z;
-
-	const float delta = 1.f / shadowMapResolution;
-
-
-	const float2 texelOffset[9] =
+	if (useSSAOMap)
 	{
-		float2(0.f, delta),
-		float2(delta, delta),
-		float2(delta, 0.f),
-		float2(delta, -delta),
-		float2(0.f, -delta),
-		float2(-delta, -delta),
-		float2(-delta, 0.f),
-		float2(-delta, +delta),
-		float2(0.f, 0.f),
-	};
-
-
-	[unroll]
-	for (int i = 0; i < 9; i++)
-	{
-		litFactor += shadowMap.SampleCmpLevelZero(shadowSampler, pin.shadowPosH.xy + texelOffset[i], depthNDC).r;
+		pin.ssaoPosH /= pin.ssaoPosH.w;
+		float ambientAccess = ssaoMap.Sample(textureSampler, pin.ssaoPosH.xy, 0.0f).r;
 	}
 
-	litFactor /= 9;
-}
+	// make sure tangentW is still orthogonal to normalW and is unit leght even
+	// after the rasterizer stage (interpolation) 
+	pin.tangentW.xyz = pin.tangentW.xyz - (dot(pin.tangentW.xyz, pin.normalW)*pin.normalW);
+	pin.tangentW.xyz = normalize(pin.tangentW.xyz);
 
 
-float glossSample = glossTexture.Sample(textureSampler, pin.uv).r;
-float3 toEyeW = normalize(eyePosW - pin.posW);
-
-float4 totalAmbient = float4(0.f, 0.f, 0.f, 0.f);
-float4 totalDiffuse = float4(0.f, 0.f, 0.f, 0.f);
-float4 totalSpecular = float4(0.f, 0.f, 0.f, 0.f);
-float4 ambient;
-float4 diffuse;
-float4 specular;
+	// bump mapping
+	float3 bumpNormalW = BumpNormalW(pin.uv, pin.normalW, pin.tangentW);
 
 
-// we want to apply our shadow map only to the directional key light
-float litFactors[2] = { litFactor, 1.f };
+	float litFactor = 1.f;
+	if (useShadowMap)
+	{
+		litFactor = 0.f;
 
-[unroll]
-for (uint i = 0; i < DIRECTIONAL_LIGHT_COUNT; i++)
-{
-	DirectionalLightContribution(material, dirLights[i], bumpNormalW, toEyeW, glossSample, ambient, diffuse, specular);
-	totalAmbient += ambient;
-	totalDiffuse += diffuse * litFactors[i];
-	totalSpecular += specular * litFactors[i];
-}
+		pin.shadowPosH.xyz /= pin.shadowPosH.w;
+		float depthNDC = pin.shadowPosH.z;
+
+		const float delta = 1.f / shadowMapResolution;
 
 
-float4 diffuseColor = diffuseTexture.Sample(textureSampler, pin.uv);
-float4 finalColor = diffuseColor * (totalAmbient + totalDiffuse) + totalSpecular;
-finalColor.a = diffuseColor.a * totalDiffuse.a;
+		const float2 texelOffset[9] =
+		{
+			float2(0.f, delta),
+			float2(delta, delta),
+			float2(delta, 0.f),
+			float2(delta, -delta),
+			float2(0.f, -delta),
+			float2(-delta, -delta),
+			float2(-delta, 0.f),
+			float2(-delta, +delta),
+			float2(0.f, 0.f),
+		};
 
-return finalColor;
+
+		[unroll]
+		for (int i = 0; i < 9; i++)
+		{
+			litFactor += shadowMap.SampleCmpLevelZero(shadowSampler, pin.shadowPosH.xy + texelOffset[i], depthNDC).r;
+		}
+
+		litFactor /= 9;
+	}
+
+
+	float glossSample = glossTexture.Sample(textureSampler, pin.uv).r;
+	float3 toEyeW = normalize(eyePosW - pin.posW);
+
+	float4 totalAmbient = float4(0.f, 0.f, 0.f, 0.f);
+	float4 totalDiffuse = float4(0.f, 0.f, 0.f, 0.f);
+	float4 totalSpecular = float4(0.f, 0.f, 0.f, 0.f);
+	float4 ambient;
+	float4 diffuse;
+	float4 specular;
+
+
+	// we want to apply our shadow map only to the directional key light
+	float litFactors[2] = { litFactor, 1.f };
+
+	[unroll]
+	for (uint i = 0; i < DIRECTIONAL_LIGHT_COUNT; i++)
+	{
+		DirectionalLightContribution(material, dirLights[i], bumpNormalW, toEyeW, glossSample, ambient, diffuse, specular);
+		if (useSSAOMap)
+		{
+			totalAmbient += ambient * ambientAccess;
+		}
+		else
+		{
+			totalAmbient += ambient;
+		}
+		
+		totalDiffuse += diffuse * litFactors[i];
+		totalSpecular += specular * litFactors[i];
+	}
+
+
+	float4 diffuseColor = diffuseTexture.Sample(textureSampler, pin.uv);
+	float4 finalColor = diffuseColor * (totalAmbient + totalDiffuse) + totalSpecular;
+	finalColor.a = diffuseColor.a * totalDiffuse.a;
+
+	return finalColor;
 
 }
