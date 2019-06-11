@@ -59,7 +59,7 @@ Texture2D normalTexture : register(t1);
 Texture2D glossTexture : register(t2);
 
 Texture2D shadowMap : register(t10);
-Texture2D ssaoMap : register(t11);
+Texture2D ssaoMap : register(t13);
 
 SamplerState textureSampler : register(s0);
 SamplerState SSAOSampler : register(s3);
