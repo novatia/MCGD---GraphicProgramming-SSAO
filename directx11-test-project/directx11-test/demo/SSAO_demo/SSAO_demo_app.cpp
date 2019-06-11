@@ -35,7 +35,7 @@ SSAODemoApp::SSAODemoApp(HINSTANCE instance,
 	, m_shadowMap(2048)
 	, m_SSAOMap(windowSettings.width, windowSettings.height)//, 1, 128, 4, 2.0f, 3.0f)
 	, m_normalDepthMap(windowSettings.width, windowSettings.height)
-	, m_randomVecMap(windowSettings.width, windowSettings.height)
+	, m_randomVecMap(256, 256)
 	, m_sceneBoundingSphere({ 0.f, 0.f, 0.f }, 21.f)
 {}
 
@@ -136,7 +136,7 @@ void SSAODemoApp::InitRenderTechnique()
 		pixelShader->AddSampler(SamplerUsage::normal_depth_map, std::make_shared<NormalDepthSampler>());
 		pixelShader->AddSampler(SamplerUsage::random_vec, std::make_shared<RandomVecSampler>());
 
-		m_SSAOPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), m_SSAOMap.AsRenderTargetView(), nullptr));
+		m_SSAOPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), m_SSAOMap.AsRenderTargetView(), nullptr)); // nullptr
 		m_SSAOPass.SetVertexShader(vertexShader);
 		m_SSAOPass.SetPixelShader(pixelShader);
 		m_SSAOPass.Init();

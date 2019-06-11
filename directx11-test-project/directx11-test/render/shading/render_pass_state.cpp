@@ -23,7 +23,7 @@ RenderPassState::RenderPassState(
 
 void RenderPassState::Bind()
 {
-	XTEST_ASSERT(m_depthStencilView);
+	//XTEST_ASSERT(m_depthStencilView);
 
 	ID3D11DeviceContext* d3dContext = service::Locator::GetD3DContext();
 	d3dContext->IASetPrimitiveTopology(m_primitiveTopology);
