@@ -6,12 +6,11 @@ struct Material
 	float4 specular;
 };
 
-struct VertexIn
+struct VertexInAmbientOcclusion
 {
 	float3 posL : POSITION;
-	float3 normalL : NORMAL;
-	float4 tangentL : TANGENT;
-	float2 uv : TEXCOORD;
+	float3 toFarPlaneIndex : NORMAL;
+	float4 uv : TANGENT;
 };
 
 struct VertexOutAmbientOcclusion
@@ -42,11 +41,11 @@ cbuffer PerObjectCBAmbientOcclusion : register(b3)
 	float surfaceEpsilon = 0.05f;
 };
 
-VertexOutAmbientOcclusion main(VertexIn vin)
+VertexOutAmbientOcclusion main(VertexInAmbientOcclusion vin)
 {
 	VertexOutAmbientOcclusion vout;
 	vout.posH = float4(vin.posL, 1.0f);
 	vout.uv = vin.uv;
-	vout.toFarPlane = frustumCorners[vin.normalL.x].xyz;
+	vout.toFarPlane = frustumCorners[vin.toFarPlaneIndex.x].xyz;
 	return vout;
 }
