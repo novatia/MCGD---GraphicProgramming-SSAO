@@ -9,6 +9,8 @@
 #include <external_libs/directxtk/WICTextureLoader.h>
 #include <stdlib.h>
 #include <ctime>
+#include <codecvt>
+
 
 using namespace DirectX;
 using namespace xtest;
@@ -405,7 +407,42 @@ void SSAODemoApp::RenderScene()
 	m_renderPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, nullptr);
 	m_d3dAnnotation->EndEvent();
 
+
+
+
 	XTEST_D3D_CHECK(m_swapChain->Present(0, 0));
+
+
+	int top = 30;
+
+	HWND hwnd = GetMainWindow();
+
+	RECT rect;
+	HDC wdc = GetWindowDC(hwnd);
+	GetClientRect(hwnd, &rect);
+	SetTextColor(wdc, 0x00000000);
+	SetBkMode(wdc, TRANSPARENT);
+	rect.left = 30;
+	rect.top = top;
+	std::ostringstream ss;
+	ss << " Occlusion Radius: ";
+	ss << m_SSAOMap.m_occlusionRadius;
+	ss << " Occlusion Start: ";
+	ss << m_SSAOMap.m_occlusionFadeStart;
+	ss << " Occlusion End: ";
+	ss << m_SSAOMap.m_occlusionFadeEnd;
+	ss << " Occlusion Epsilon: ";
+	ss << m_SSAOMap.m_surfaceEpsilon;
+
+	std::string s(ss.str());
+
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+	std::wstring wide = converter.from_bytes(s);
+
+	DrawTextW(wdc, wide.c_str(), -1, &rect, DT_SINGLELINE | DT_NOCLIP);
+
+	DeleteDC(wdc);
+
 }
 
 
