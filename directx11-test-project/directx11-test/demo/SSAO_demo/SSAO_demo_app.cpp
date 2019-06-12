@@ -56,7 +56,7 @@ void SSAODemoApp::Init()
 	InitRenderTechnique();
 	InitRenderables();
 	service::Locator::GetMouse()->AddListener(this);
-	service::Locator::GetKeyboard()->AddListener(this, { input::Key::F, input::Key::F1, input::Key::F2, input::Key::U, input::Key::Y, input::Key::J, input::Key::H, input::Key::M, input::Key::N });
+	service::Locator::GetKeyboard()->AddListener(this, { input::Key::F, input::Key::F1, input::Key::F2, input::Key::U, input::Key::Y, input::Key::J, input::Key::H, input::Key::M, input::Key::N , input::Key::O, input::Key::P });
 }
 
 
@@ -144,8 +144,6 @@ void SSAODemoApp::InitRenderTechnique()
 		m_SSAOPass.SetPixelShader(pixelShader);
 		m_SSAOPass.Init();
 	}
-	
-
 	// render pass
 	{
 		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\SSAO_demo_VS.cso")));
@@ -196,8 +194,8 @@ void SSAODemoApp::InitRenderables()
 	m.specular = { 1.0f,1.0f,1.0f,1.0f };
 
 	int size = 9;
-	float R = 1;
-	float Y=5;
+	float R  = 1;
+	float Y  = 5;
 
 	xtest::mesh::MeshData plane = xtest::mesh::GeneratePlane((size+1)* R * 2,(size + 1)*R * 2,size,size);
 	render::Renderable planer{ plane , m };
@@ -209,7 +207,9 @@ void SSAODemoApp::InitRenderables()
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			xtest::mesh::MeshData mesh = xtest::mesh::GenerateSphere(R, 30, 30);
+
 			render::Renderable sphere{ mesh , m };
+
 			sphere.SetTransform(XMMatrixRotationY(math::ToRadians(0)) * XMMatrixTranslation( i * 2 * R, Y + R , j * 2 * R));
 			sphere.Init();
 			m_objects.push_back(sphere);
@@ -295,35 +295,49 @@ void SSAODemoApp::OnKeyStatusChange(input::Key key, const input::KeyStatus& stat
 		m_isRarelyChangedDataDirty = true;
 	}
 
-	if (key == input::Key::U && status.isDown)
+	if (key == input::Key::U)
 	{
-		m_SSAOMap.m_occlusionRadius += 0.1f;
+		m_SSAOMap.m_occlusionRadius += 0.01f;
 	}
 
-	if (key == input::Key::Y && status.isDown)
+	if (key == input::Key::Y )
 	{
-		m_SSAOMap.m_occlusionRadius -= 0.1f;
+		m_SSAOMap.m_occlusionRadius -= 0.01f;
 	}
 
-	if (key == input::Key::J && status.isDown)
+	if (key == input::Key::J )
 	{
-		m_SSAOMap.m_occlusionFadeStart += 0.1f;
+		m_SSAOMap.m_occlusionFadeStart += 0.01f;
 	}
 
-	if (key == input::Key::H && status.isDown)
+	if (key == input::Key::H )
 	{
-		m_SSAOMap.m_occlusionFadeStart -= 0.1f;
+		m_SSAOMap.m_occlusionFadeStart -= 0.01f;
 	}
 
-	if (key == input::Key::M && status.isDown)
+	if (key == input::Key::M )
 	{
-		m_SSAOMap.m_occlusionFadeEnd += 0.1f;
+		m_SSAOMap.m_occlusionFadeEnd += 0.01f;
 	}
 
-	if (key == input::Key::N && status.isDown)
+	if (key == input::Key::N )
 	{
-		m_SSAOMap.m_occlusionFadeEnd -= 0.1f;
+		m_SSAOMap.m_occlusionFadeEnd -= 0.01f;
 	}
+
+
+	if (key == input::Key::P )
+	{
+		m_SSAOMap.m_surfaceEpsilon += 0.0001f;
+	}
+
+	if (key == input::Key::O )
+	{
+		m_SSAOMap.m_surfaceEpsilon -= 0.0001f;
+	}
+
+
+
 
 	if (key == input::Key::F2 && status.isDown)
 	{
@@ -439,9 +453,7 @@ void SSAODemoApp::RenderScene()
 	m_renderPass.GetPixelShader()->BindTexture(TextureUsage::shadow_map, nullptr); // explicit unbind the shadow map to suppress warning
 	m_renderPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, nullptr);
 	m_d3dAnnotation->EndEvent();
-
-
-
+	
 
 	XTEST_D3D_CHECK(m_swapChain->Present(0, 0));
 
@@ -598,31 +610,17 @@ float RandomFloat(float min, float max)
 
 void SSAODemoApp::BuildOffsetVectors()
 {
-	m_offsets[0] = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f);
-	m_offsets[1] = DirectX::XMFLOAT4(-1.0f, -1.0f, -1.0f, 0.0f);
-	m_offsets[2] = DirectX::XMFLOAT4(-1.0f, 1.0f, 1.0f, 0.0f);
-	m_offsets[3] = DirectX::XMFLOAT4(1.0f, -1.0f, -1.0f, 0.0f);
-	m_offsets[4] = DirectX::XMFLOAT4(1.0f, 1.0f, -1.0f, 0.0f);
-	m_offsets[5] = DirectX::XMFLOAT4(-1.0f, -1.0f, 1.0f, 0.0f);
-	m_offsets[6] = DirectX::XMFLOAT4(-1.0f, 1.0f, -1.0f, 0.0f);
-	m_offsets[7] = DirectX::XMFLOAT4(1.0f, -1.0f, 1.0f, 0.0f);
-	m_offsets[8] = DirectX::XMFLOAT4(-1.0f, 0.0f, 0.0f, 0.0f);
-	m_offsets[9] = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 0.0f);
-	m_offsets[10] = DirectX::XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f);
-	m_offsets[11] = DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f);
-	m_offsets[12] = DirectX::XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
-	m_offsets[13] = DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 0.0f);
-	
 	srand((unsigned)std::time(NULL));
-	for (int i = 14; i < SSAOData::SAMPLE_COUNT; i++) 
+	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++) 
 	{
 		m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), 0.0f);
+		//m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.05f, 255.0f), RandomFloat(0.05f, 255.0f), RandomFloat(0.05f, 255.0f), 255.0f);
 	}
 
 	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++)
 	{
-		float s = RandomFloat(0.25f, 1.0f);
-		XMVECTOR v = s * XMVector4Normalize(XMLoadFloat4(&m_offsets[i]));
+		//float s = RandomFloat(0.25f, 1.0f);
+		XMVECTOR v = 1 * XMVector4Normalize(XMLoadFloat4(&m_offsets[i]));
 		XMStoreFloat4(&m_offsets[i], v);
 	}
 }

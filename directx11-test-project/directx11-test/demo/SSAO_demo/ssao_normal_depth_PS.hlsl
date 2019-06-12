@@ -23,5 +23,6 @@ float4 main(VertexOutNormalDepth pin) : SV_TARGET
 	//renormalize interpolated normals.
 	pin.normalV = normalize(pin.normalV);
 
-	return float4(pin.normalV, pin.posH.z);
+	//return float4(pin.normalV, pin.posH.z);
+	return float4(pin.normalV, pin.posV.z); //preso dal libro
 }
