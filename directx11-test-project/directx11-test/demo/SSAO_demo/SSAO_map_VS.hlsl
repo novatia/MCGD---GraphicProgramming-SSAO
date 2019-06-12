@@ -36,10 +36,10 @@ cbuffer PerObjectCBAmbientOcclusion : register(b3)
 	float4x4 viewToTexSpace; // Proj*Tex
 	float4 offsetVectors[14];
 	float4 frustumCorners[4];
-	float occlusionRadius = 0.5f;
-	float occlusionFadeStart = 0.2f;
-	float occlusionFadeEnd = 2.0f;
-	float surfaceEpsilon = 0.05f;
+	float occlusionRadius;
+	float occlusionFadeStart;
+	float occlusionFadeEnd;
+	float surfaceEpsilon;
 };
 
 VertexOutAmbientOcclusion main(VertexInAmbientOcclusion vin)
