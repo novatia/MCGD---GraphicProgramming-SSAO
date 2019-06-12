@@ -20,7 +20,7 @@ namespace camera {
 		DirectX::XMFLOAT3 GetYAxis() const;
 		DirectX::XMFLOAT3 GetZAxis() const;
 		float GetYFov() const;
-   		float GetZFarPlane() const;
+		float GetZFarPlane() const;
 		float GetAspectRatio() const;
 		void SetPerspectiveProjection(float viewYAngleRadians, float aspectRatio, float nearPlaneZ, float farPlaneZ);
 		void SetOrthographicProjection(float width, float height, float nearPlaneZ, float farPlaneZ);

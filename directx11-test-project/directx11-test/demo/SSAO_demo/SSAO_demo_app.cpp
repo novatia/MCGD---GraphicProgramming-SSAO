@@ -490,7 +490,6 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 	XMMATRIX WVP = W * V*P;
 	XMMATRIX WVPT_shadowMap = W * m_shadowMap.VPTMatrix();
 
-
 	static const XMMATRIX T1(
 		0.5f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.5f, 0.0f, 0.0f,
