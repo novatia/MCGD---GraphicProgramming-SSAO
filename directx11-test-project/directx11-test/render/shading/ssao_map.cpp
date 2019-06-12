@@ -106,6 +106,13 @@ void xtest::render::shading::SSAOMap::Init()
 	D3D11_SUBRESOURCE_DATA indexInitdata;
 	indexInitdata.pSysMem = &m_vs_data.indices[0];
 	XTEST_D3D_CHECK(service::Locator::GetD3DDevice()->CreateBuffer(&indexBufferDesc, &indexInitdata, &m_d3dIndexBuffer));
+
+	m_viewport.TopLeftX = 0.0f;
+	m_viewport.TopLeftY = 0.0f;
+	m_viewport.Width = m_width;
+	m_viewport.Height = m_height;
+	m_viewport.MinDepth = 0.0f;
+	m_viewport.MaxDepth = 1.0f;
 }
 
 //void xtest::render::shading::SSAOMap::SetNoiseSize(uint32 noise_size)
