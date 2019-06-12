@@ -41,10 +41,8 @@ SSAODemoApp::SSAODemoApp(HINSTANCE instance,
 	, m_sceneBoundingSphere({ 0.f, 0.f, 0.f }, 21.f)
 {}
 
-
 SSAODemoApp::~SSAODemoApp()
 {}
-
 
 void SSAODemoApp::Init()
 {
@@ -58,7 +56,6 @@ void SSAODemoApp::Init()
 	service::Locator::GetMouse()->AddListener(this);
 	service::Locator::GetKeyboard()->AddListener(this, { input::Key::F, input::Key::F1, input::Key::F2, input::Key::U, input::Key::Y, input::Key::J, input::Key::H, input::Key::M, input::Key::N , input::Key::O, input::Key::P });
 }
-
 
 void SSAODemoApp::InitLights()
 {
@@ -75,7 +72,6 @@ void SSAODemoApp::InitLights()
 	m_rarelyChangedData.useShadowMap = true;
 	m_rarelyChangedData.useSSAOMap = true;
 }
-
 
 void SSAODemoApp::InitRenderTechnique()
 {
@@ -161,7 +157,6 @@ void SSAODemoApp::InitRenderTechnique()
 	}
 }
 
-
 void SSAODemoApp::InitRenderables()
 {
 	render::Renderable ground{ *(service::Locator::GetResourceLoader()->LoadGPFMesh(GetRootDir().append(LR"(\3d-objects\rocks_dorama\rocks_composition.gpf)"))) };
@@ -215,7 +210,6 @@ void SSAODemoApp::InitRenderables()
 
 }
 
-
 void SSAODemoApp::OnResized()
 {
 	application::DirectxApp::OnResized();
@@ -229,7 +223,6 @@ void SSAODemoApp::OnResized()
 	m_camera.SetPerspectiveProjection(math::ToRadians(45.f), AspectRatio(), 1.f, 1000.f);
 }
 
-
 void SSAODemoApp::OnWheelScroll(input::ScrollStatus scroll)
 {
 	// zoom in or out when the scroll wheel is used
@@ -238,7 +231,6 @@ void SSAODemoApp::OnWheelScroll(input::ScrollStatus scroll)
 		m_camera.IncreaseRadiusBy(scroll.isScrollingUp ? -0.5f : 0.5f);
 	}
 }
-
 
 void SSAODemoApp::OnMouseMove(const DirectX::XMINT2& movement, const DirectX::XMINT2& currentPos)
 {
@@ -277,7 +269,15 @@ void SSAODemoApp::OnMouseMove(const DirectX::XMINT2& movement, const DirectX::XM
 	}
 }
 
+bool increaseOcclusionRadius = false;
+bool increaseocclusionFadeStart = false;
+bool increaseFadeEnd = false;
+bool increaseSurfaceEpsilon = false;
 
+bool decreaseOcclusionRadius = false;
+bool decreaseOcclusionFadeStart = false;
+bool decreaseFadeEnd = false;
+bool decreaseSurfaceEpsilon = false;
 
 void SSAODemoApp::OnKeyStatusChange(input::Key key, const input::KeyStatus& status)
 {
@@ -292,48 +292,88 @@ void SSAODemoApp::OnKeyStatusChange(input::Key key, const input::KeyStatus& stat
 		m_isRarelyChangedDataDirty = true;
 	}
 
-	if (key == input::Key::U)
+	if (key == input::Key::U && status.isDown)
 	{
 		m_SSAOMap.m_occlusionRadius += 0.01f;
+		increaseOcclusionRadius = true;
+	}
+	else 
+	{
+		increaseOcclusionRadius = false;
 	}
 
-	if (key == input::Key::Y )
+	if (key == input::Key::Y && status.isDown)
 	{
 		m_SSAOMap.m_occlusionRadius -= 0.01f;
+		decreaseOcclusionRadius = true;
+	}
+	else
+	{
+		decreaseOcclusionRadius = false;
 	}
 
-	if (key == input::Key::J )
+
+	if (key == input::Key::J&& status.isDown)
 	{
 		m_SSAOMap.m_occlusionFadeStart += 0.01f;
+		increaseocclusionFadeStart = true;
+	}
+	else
+	{
+		increaseocclusionFadeStart = false;
 	}
 
-	if (key == input::Key::H )
+	if (key == input::Key::H&& status.isDown)
 	{
 		m_SSAOMap.m_occlusionFadeStart -= 0.01f;
+		decreaseOcclusionFadeStart = true;
+	}
+	else
+	{
+		decreaseOcclusionFadeStart = false;
 	}
 
-	if (key == input::Key::M )
+	if (key == input::Key::M && status.isDown)
 	{
 		m_SSAOMap.m_occlusionFadeEnd += 0.01f;
+		increaseFadeEnd = true;
+	}
+	else
+	{
+		increaseFadeEnd = false;
 	}
 
-	if (key == input::Key::N )
+	if (key == input::Key::N && status.isDown)
 	{
 		m_SSAOMap.m_occlusionFadeEnd -= 0.01f;
+
+		decreaseFadeEnd = true;
+	}
+	else
+	{
+		decreaseFadeEnd = false;
 	}
 
 
-	if (key == input::Key::P )
+	if (key == input::Key::P&& status.isDown)
 	{
 		m_SSAOMap.m_surfaceEpsilon += 0.0001f;
+		increaseSurfaceEpsilon = true;
+	}
+	else 
+	{
+		increaseSurfaceEpsilon = false;
 	}
 
-	if (key == input::Key::O )
+	if (key == input::Key::O && status.isDown)
 	{
 		m_SSAOMap.m_surfaceEpsilon -= 0.0001f;
+		decreaseSurfaceEpsilon = true;
 	}
-
-
+	else
+	{
+		decreaseSurfaceEpsilon = false;
+	}
 
 
 	if (key == input::Key::F2 && status.isDown)
@@ -357,6 +397,50 @@ void SSAODemoApp::UpdateScene(float deltaSeconds)
 		m_renderPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_frame)->UpdateBuffer(data);
 	}
 
+
+	if (increaseOcclusionRadius)
+	{
+		m_SSAOMap.m_occlusionRadius += 0.01f;
+	}
+	
+
+	if (decreaseOcclusionRadius)
+	{
+		m_SSAOMap.m_occlusionRadius -= 0.01f;
+	}
+
+	if (increaseocclusionFadeStart)
+	{
+		m_SSAOMap.m_occlusionFadeStart += 0.01f;
+	}
+	
+
+	if (decreaseOcclusionFadeStart)
+	{
+		m_SSAOMap.m_occlusionFadeStart -= 0.01f;
+	}
+	
+
+	if (increaseFadeEnd)
+	{
+		m_SSAOMap.m_occlusionFadeEnd += 0.01f;
+	}
+
+	if (decreaseFadeEnd)
+	{
+		m_SSAOMap.m_occlusionFadeEnd -= 0.01f;
+	}
+	
+
+	if (increaseSurfaceEpsilon)
+	{
+		m_SSAOMap.m_surfaceEpsilon += 0.0001f;
+	}
+
+	if (decreaseSurfaceEpsilon)
+	{
+		m_SSAOMap.m_surfaceEpsilon -= 0.0001f;
+	}
 
 	// RarelyChangedCB
 	if (m_isRarelyChangedDataDirty)
@@ -488,6 +572,33 @@ void SSAODemoApp::RenderScene()
 
 }
 
+SSAODemoApp::PerFrameDataNormalDepth xtest::demo::SSAODemoApp::ToPerFrameData(const render::Renderable & renderable, const std::string & meshName)
+{
+	/*
+	Vedi MeshViewDemo.cpp 584-594
+	*/
+	PerFrameDataNormalDepth data;
+	XMMATRIX W = XMLoadFloat4x4(&renderable.GetTransform());
+	XMMATRIX W_InverseTranspose = XMMatrixTranspose( XMMatrixInverse(nullptr, W));
+
+	//XMMATRIX T = XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
+	XMMATRIX V = m_camera.GetViewMatrix();
+	XMMATRIX P = m_camera.GetProjectionMatrix();
+	
+	XMMATRIX WV = W * V;
+	XMMATRIX W_InverseTransposeV = W_InverseTranspose * V;
+	XMMATRIX WVP = W * V * P;
+
+	//[-1,1]->[0,1]
+	static const XMMATRIX T = XMMatrixScaling(1.0f, 1.0f, 1.0f);
+
+	XMStoreFloat4x4(&data.worldView, XMMatrixTranspose(WV));
+	XMStoreFloat4x4(&data.worldInvTransposeView, XMMatrixTranspose(W_InverseTransposeV));
+	XMStoreFloat4x4(&data.texTransform, XMMatrixTranspose(T));
+	XMStoreFloat4x4(&data.worldViewProj, XMMatrixTranspose(WVP));
+
+	return data;
+}
 
 SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable& renderable, const std::string& meshName)
 {
@@ -497,7 +608,7 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 	XMMATRIX V = m_camera.GetViewMatrix();
 	XMMATRIX P = m_camera.GetProjectionMatrix();
 	XMMATRIX T = XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
-
+	XMMATRIX W_inverseTraspose = XMMatrixTranspose( XMMatrixInverse(nullptr, W) );
 	XMMATRIX WVP = W * V * P;
 	XMMATRIX WVPT_shadowMap = W * m_shadowMap.VPTMatrix();
 
@@ -508,12 +619,12 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.5f, 0.5f, 0.0f, 1.0f);
 
-	XMMATRIX WVPT = WVP * T1;
+	XMMATRIX WVPT1 = WVP * T1;
 
 	XMStoreFloat4x4(&data.W, XMMatrixTranspose(W));
 	XMStoreFloat4x4(&data.WVP, XMMatrixTranspose(WVP));
-	XMStoreFloat4x4(&data.WVPT, XMMatrixTranspose(WVPT));
-	XMStoreFloat4x4(&data.W_inverseTraspose, XMMatrixInverse(nullptr, W));
+	XMStoreFloat4x4(&data.WVPT, XMMatrixTranspose(WVPT1));
+	XMStoreFloat4x4(&data.W_inverseTraspose, XMMatrixTranspose(W_inverseTraspose));
 	XMStoreFloat4x4(&data.TexcoordMatrix, XMMatrixTranspose(T));
 	XMStoreFloat4x4(&data.WVPT_shadowMap, XMMatrixTranspose(WVPT_shadowMap));
 
@@ -526,6 +637,7 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 
 SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusion()
 {
+	//Vedi SSAO.cpp 79-92 Qui 
 	BuildFrustumFarCorners(m_camera.GetYFov(), m_camera.GetZFarPlane());
 	BuildOffsetVectors();
 	PerObjectCBAmbientOcclusion data;
@@ -554,24 +666,6 @@ SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusio
 	data.occlusionFadeStart = m_SSAOMap.m_occlusionFadeStart;
 	data.occlusionRadius = m_SSAOMap.m_occlusionRadius;
 	data.surfaceEpsilon = m_SSAOMap.m_surfaceEpsilon;
-
-	return data;
-}
-
-SSAODemoApp::PerFrameDataNormalDepth xtest::demo::SSAODemoApp::ToPerFrameData(const render::Renderable & renderable, const std::string & meshName)
-{
-	PerFrameDataNormalDepth data;
-	XMMATRIX W = XMLoadFloat4x4(&renderable.GetTransform());
-	XMMATRIX T = XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
-	XMMATRIX V = m_camera.GetViewMatrix();
-	XMMATRIX P = m_camera.GetProjectionMatrix();
-	XMMATRIX WVP = W * V*P;
-
-
-	XMStoreFloat4x4(&data.worldView, XMMatrixTranspose(W*V));
-	XMStoreFloat4x4(&data.worldInvTransposeView, XMMatrixTranspose( XMMatrixInverse(nullptr, W)*V));
-	XMStoreFloat4x4(&data.texTransform, XMMatrixTranspose(T));
-	XMStoreFloat4x4(&data.worldViewProj, XMMatrixTranspose(WVP));
 
 	return data;
 }
