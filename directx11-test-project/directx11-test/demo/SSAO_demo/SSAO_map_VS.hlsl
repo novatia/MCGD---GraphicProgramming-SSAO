@@ -1,3 +1,4 @@
+#define SAMPLE_COUNT 128
 
 struct Material
 {
@@ -34,7 +35,7 @@ cbuffer PerObjectCB : register(b0)
 cbuffer PerObjectCBAmbientOcclusion : register(b3)
 {
 	float4x4 viewToTexSpace; // Proj*Tex
-	float4 offsetVectors[14];
+	float4 offsetVectors[SAMPLE_COUNT];
 	float4 frustumCorners[4];
 	float occlusionRadius;
 	float occlusionFadeStart;
