@@ -107,10 +107,10 @@ void SSAODemoApp::InitRenderTechnique()
 
 		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_VS.cso")));
 		vertexShader->SetVertexInput(std::make_shared<MeshDataVertexInput>());
-		vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
+		vertexShader->AddConstantBuffer(CBufferFrequency::per_frame_normal_depth, std::make_unique<CBuffer<PerFrameDataNormalDepth>>());
 
 		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_PS.cso")));
-		//pixelShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
+		//pixelShader->AddConstantBuffer(CBufferFrequency::per_frame_normal_depth, std::make_unique<CBuffer<PerFrameDataNormalDepth>>());
 
 		m_normalDepthPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), m_normalDepthMap.AsRenderTargetView(), m_depthBufferView.Get()));
 		m_normalDepthPass.SetVertexShader(vertexShader);
@@ -352,8 +352,8 @@ void SSAODemoApp::RenderScene()
 	{
 		for (const std::string& meshName : renderable.GetMeshNames())
 		{
-			PerObjectData data = ToPerObjectData(renderable, meshName);
-			m_normalDepthPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object)->UpdateBuffer(data);
+			PerFrameDataNormalDepth data = ToPerFrameData(renderable, meshName);
+			m_normalDepthPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_frame_normal_depth)->UpdateBuffer(data);
 			renderable.Draw(meshName);
 		}
 	}
@@ -510,6 +510,24 @@ SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusio
 	data.occlusionFadeStart = m_SSAOMap.m_occlusionFadeStart;
 	data.occlusionRadius = m_SSAOMap.m_occlusionRadius;
 	data.surfaceEpsilon = m_SSAOMap.m_surfaceEpsilon;
+
+	return data;
+}
+
+SSAODemoApp::PerFrameDataNormalDepth xtest::demo::SSAODemoApp::ToPerFrameData(const render::Renderable & renderable, const std::string & meshName)
+{
+	PerFrameDataNormalDepth data;
+	XMMATRIX W = XMLoadFloat4x4(&renderable.GetTransform());
+	XMMATRIX T = XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
+	XMMATRIX V = m_camera.GetViewMatrix();
+	XMMATRIX P = m_camera.GetProjectionMatrix();
+	XMMATRIX WVP = W * V*P;
+
+
+	XMStoreFloat4x4(&data.worldView, XMMatrixTranspose(W*V));
+	XMStoreFloat4x4(&data.worldInvTransposeView, XMMatrixInverse(nullptr, W)*V);
+	XMStoreFloat4x4(&data.texTransform, XMMatrixTranspose(T));
+	XMStoreFloat4x4(&data.worldViewProj, XMMatrixTranspose(WVP));
 
 	return data;
 }

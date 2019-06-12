@@ -59,6 +59,14 @@ namespace xtest {
 				Material material;
 			};
 
+			struct PerFrameDataNormalDepth
+			{
+				DirectX::XMFLOAT4X4 worldView;
+				DirectX::XMFLOAT4X4 worldInvTransposeView;
+				DirectX::XMFLOAT4X4 worldViewProj;
+				DirectX::XMFLOAT4X4 texTransform;
+			};
+
 			struct PerObjectShadowMapData
 			{
 				DirectX::XMFLOAT4X4 WVP_lightSpace;
@@ -126,6 +134,7 @@ namespace xtest {
 			void InitLights();
 			PerObjectData ToPerObjectData(const render::Renderable& renderable, const std::string& meshName);
 			PerObjectCBAmbientOcclusion ToPerObjectAmbientOcclusion();
+			PerFrameDataNormalDepth ToPerFrameData(const render::Renderable& renderable, const std::string& meshName);
 
 			PerObjectShadowMapData ToPerObjectShadowMapData(const render::Renderable& renderable, const std::string& meshName);
 
