@@ -165,7 +165,9 @@ void DirectionalLightContribution(Material mat, DirectionalLight light, float3 n
 float4 main(VertexOut pin) : SV_TARGET
 {
 	pin.normalW = normalize(pin.normalW);
-	float ambientAccess = 1.0f;
+	
+	float ambientAccess = 0.0f;
+
 	if (useSSAOMap)
 	{
 		pin.ssaoPosH /= pin.ssaoPosH.w;
@@ -242,13 +244,14 @@ float4 main(VertexOut pin) : SV_TARGET
 		totalDiffuse += diffuse * litFactors[i];
 		totalSpecular += specular * litFactors[i];
 	}
-	totalAmbient *= ambientAccess;
+
+	totalAmbient += ambientAccess;
 
 	float4 diffuseColor = diffuseTexture.Sample(textureSampler, pin.uv);
 	float4 finalColor = diffuseColor * (totalAmbient + totalDiffuse) + totalSpecular;
 	finalColor.a = diffuseColor.a * totalDiffuse.a;
 
-	return ambientAccess;
+	return finalColor;
 	//return finalColor;
 	//return 0;
 }

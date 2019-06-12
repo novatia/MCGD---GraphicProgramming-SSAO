@@ -1,4 +1,4 @@
-#define SAMPLE_COUNT 128
+#define SAMPLE_COUNT 256
 
 struct Material
 {

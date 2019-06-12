@@ -48,12 +48,12 @@ namespace application {
 		Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> m_d3dAnnotation;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_d3dContext;
 		Microsoft::WRL::ComPtr<IDXGISwapChain> m_swapChain;
+
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_backBufferView;
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthBuffer;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthBufferView;
-
-		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_ssao_backBufferView;
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_ssao_depthBufferView;
+		//Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_ssao_backBufferView;
+		//Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_ssao_depthBufferView;
 
 
 		D3D11_VIEWPORT m_viewport;

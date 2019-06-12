@@ -86,6 +86,13 @@ void RenderPassState::ClearRenderTarget(const DirectX::XMFLOAT4& color)
 	service::Locator::GetD3DContext()->ClearRenderTargetView(m_renderTargetView, color_asArray);
 }
 
+void xtest::render::shading::RenderPassState::ClearRenderTarget(const float* color)
+{
+	XTEST_ASSERT(m_renderTargetView);
+	float color_asArray[] = { color[0], color[1], color[2], color[3] };
+	service::Locator::GetD3DContext()->ClearRenderTargetView(m_renderTargetView, color_asArray);
+}
+
 
 void RenderPassState::ClearRenderTarget(const DirectX::XMVECTORF32& color)
 {

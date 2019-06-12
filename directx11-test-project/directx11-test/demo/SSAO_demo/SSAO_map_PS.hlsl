@@ -1,4 +1,4 @@
-#define SAMPLE_COUNT 128
+#define SAMPLE_COUNT 256
 
 struct Material
 {
@@ -51,6 +51,7 @@ float main(VertexOutAmbientOcclusion pin) : SV_TARGET
 	float3 randVec = 2.0f * randomVecMap.SampleLevel(samRandomVec, 4.0f*pin.uv, 0.0f).rgb - 1.0f;
 	float occlusionSum = 0.0f;
 
+	[unroll]
 	for (int i = 0; i < SAMPLE_COUNT; ++i)
 	{
 		float3 offset = reflect(offsetVectors[i].xyz, randVec);

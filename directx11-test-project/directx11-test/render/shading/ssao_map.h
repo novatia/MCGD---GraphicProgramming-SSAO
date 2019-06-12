@@ -24,7 +24,7 @@ namespace xtest {
 
 				std::vector<VertexInAmbientOcclusion> vertices;
 				std::vector<uint32> indices;
-				static const int SAMPLE_COUNT=128;
+				static const int SAMPLE_COUNT= 256;
 			};
 
 			// class representing a shadow map
