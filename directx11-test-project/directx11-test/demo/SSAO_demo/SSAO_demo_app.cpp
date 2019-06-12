@@ -453,6 +453,7 @@ SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusio
 		0.0f, -0.5f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.5f, 0.5f, 0.0f, 1.0f);//XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
+
 	XMMATRIX P = m_camera.GetProjectionMatrix();
 	XMMATRIX PT = XMMatrixMultiply(P,T);
 
@@ -525,12 +526,12 @@ void SSAODemoApp::BuildOffsetVectors()
 	m_offsets[12] = DirectX::XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
 	m_offsets[13] = DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 0.0f);
 	
+	srand((unsigned)std::time(NULL));
 	for (int i = 14; i < SSAOData::SAMPLE_COUNT; i++) 
 	{
-		m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f));
+		m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), 0.0f);
 	}
 
-	srand((unsigned) std::time(NULL));
 	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++)
 	{
 		float s = RandomFloat(0.25f, 1.0f);

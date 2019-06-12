@@ -49,7 +49,7 @@ void RandomVectorMap::Init()
 	D3D11_SUBRESOURCE_DATA initData;
 	initData.SysMemPitch = 256 * sizeof(PackedVector::XMCOLOR);
 	//initData.SysMemSlicePitch = 256 * 256 * sizeof(PackedVector::XMCOLOR);
-
+	srand((unsigned)std::time(NULL));
 	PackedVector::XMCOLOR* color = new PackedVector::XMCOLOR[256 * 256];
 	for (int i = 0; i < 256; ++i)
 	{
