@@ -494,26 +494,28 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 	PerObjectData data;
 
 	XMMATRIX W = XMLoadFloat4x4(&renderable.GetTransform());
-	XMMATRIX T = XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
 	XMMATRIX V = m_camera.GetViewMatrix();
 	XMMATRIX P = m_camera.GetProjectionMatrix();
-	XMMATRIX WVP = W * V*P;
+	XMMATRIX T = XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
+
+	XMMATRIX WVP = W * V * P;
 	XMMATRIX WVPT_shadowMap = W * m_shadowMap.VPTMatrix();
 
-	static const XMMATRIX T1(
+	//[-1,1]->[0,1]
+	static const XMMATRIX T1 (
 		0.5f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.5f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.5f, 0.5f, 0.0f, 1.0f);
 
-	XMMATRIX WVPT_ssao = W* V * P * T1;
+	XMMATRIX WVPT = WVP * T1;
 
 	XMStoreFloat4x4(&data.W, XMMatrixTranspose(W));
 	XMStoreFloat4x4(&data.WVP, XMMatrixTranspose(WVP));
+	XMStoreFloat4x4(&data.WVPT, XMMatrixTranspose(WVPT));
 	XMStoreFloat4x4(&data.W_inverseTraspose, XMMatrixInverse(nullptr, W));
 	XMStoreFloat4x4(&data.TexcoordMatrix, XMMatrixTranspose(T));
 	XMStoreFloat4x4(&data.WVPT_shadowMap, XMMatrixTranspose(WVPT_shadowMap));
-	XMStoreFloat4x4(&data.WVPT_ssao, XMMatrixTranspose(WVPT_ssao));
 
 	data.material.ambient = renderable.GetMaterial(meshName).ambient;
 	data.material.diffuse = renderable.GetMaterial(meshName).diffuse;

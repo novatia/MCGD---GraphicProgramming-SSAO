@@ -53,9 +53,9 @@ namespace xtest {
 				DirectX::XMFLOAT4X4 W;
 				DirectX::XMFLOAT4X4 W_inverseTraspose;
 				DirectX::XMFLOAT4X4 WVP;
+				DirectX::XMFLOAT4X4 WVPT;
 				DirectX::XMFLOAT4X4 TexcoordMatrix;
 				DirectX::XMFLOAT4X4 WVPT_shadowMap;
-				DirectX::XMFLOAT4X4 WVPT_ssao;
 				Material material;
 			};
 
