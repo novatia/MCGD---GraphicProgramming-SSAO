@@ -1,10 +1,3 @@
-//SHARE THE INPUT STRUCTURE
-struct Material
-{
-	float4 ambient;
-	float4 diffuse;
-	float4 specular;
-};
 
 //SHARE THE INPUT STRUCTURE
 struct VertexIn
@@ -16,15 +9,12 @@ struct VertexIn
 };
 
 //SHARE THE INPUT STRUCTURE
-cbuffer PerObjectCB : register(b0)
+cbuffer PerObjectCBNormalDepth : register(b4)
 {
-	float4x4 W;
-	float4x4 W_inverseTraspose;
-	float4x4 WVP;
-	float4x4 TexcoordMatrix;
-	float4x4 WVPT_shadowMap;
-	float4x4 WVPT_ssao;
-	Material material;
+	float4x4 worldView;
+	float4x4 worldInvTransposeView;
+	float4x4 worldViewProj;
+	float4x4 texTransform;
 };
 
 
@@ -32,9 +22,9 @@ cbuffer PerObjectCB : register(b0)
 struct VertexOutNormalDepth
 {
 	float4 posH : SV_POSITION;
-	float3 posW : POSITION;
-	float3 normalW : NORMAL;
-	float2 uv : TEXCOORD;
+	float3 posV : POSITION;
+	float3 normalV : NORMAL;
+	float2 uv : TEXCOORD0;
 };
 
 
@@ -43,11 +33,14 @@ VertexOutNormalDepth main(VertexIn vin)
 {
 	VertexOutNormalDepth vout;
 
-	vout.posW = mul(float4(vin.posL, 1.0f), W).xyz;
-	vout.normalW = mul(vin.normalL, (float3x3)W_inverseTraspose);
-	
-	vout.posH = mul(float4(vin.posL, 1.0f), WVP);
-	vout.uv = mul(float4(vin.uv, 0.f, 1.f), TexcoordMatrix).xy;
+	vout.posV = mul(float4(vin.posL, 1.0f), worldView).xyz;
+	vout.normalV = mul(vin.normalL, (float3x3)worldInvTransposeView);
+
+	// Transform to homogeneous clip space.
+	vout.posH = mul(float4(vin.posL, 1.0f), worldViewProj);
+
+	// Output vertex attributes for interpolation across triangle.
+	vout.uv = mul(float4(vin.uv, 0.0f, 1.0f), texTransform).xy;
 
 	return vout;
 }
