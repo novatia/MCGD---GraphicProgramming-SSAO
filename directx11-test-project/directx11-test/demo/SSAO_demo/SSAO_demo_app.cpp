@@ -183,6 +183,39 @@ void SSAODemoApp::InitRenderables()
 	soldier2.SetTransform(XMMatrixRotationY(math::ToRadians(135.f)) * XMMatrixTranslation(10.f, 0.35f, -10.f));
 	soldier2.Init();
 	m_objects.push_back(std::move(soldier2));
+
+
+	xtest::mesh::MeshMaterial m;
+
+	m.normalMap = L"" + GetRootDir().append(LR"(\3d-objects\tiles\tiles_norm.png)");
+	m.diffuseMap = L"" + GetRootDir().append(LR"(\3d-objects\tiles\tiles_color.png)");
+	m.glossMap = L"" + GetRootDir().append(LR"(\3d-objects\tiles\tiles_gloss.png)");
+
+	m.ambient = { 1.0f,1.0f,1.0f,1.0f };
+	m.diffuse = { 1.0f,1.0f,1.0f,1.0f };
+	m.specular = { 1.0f,1.0f,1.0f,1.0f };
+
+	int size = 9;
+	float R = 1;
+	float Y=5;
+
+	xtest::mesh::MeshData plane = xtest::mesh::GeneratePlane((size+1)* R * 2,(size + 1)*R * 2,size,size);
+	render::Renderable planer{ plane , m };
+	planer.SetTransform(XMMatrixRotationY(math::ToRadians(0)) * XMMatrixTranslation(size*R, Y, size *  R));
+	planer.Init();
+
+	m_objects.push_back(planer);
+
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			xtest::mesh::MeshData mesh = xtest::mesh::GenerateSphere(R, 30, 30);
+			render::Renderable sphere{ mesh , m };
+			sphere.SetTransform(XMMatrixRotationY(math::ToRadians(0)) * XMMatrixTranslation( i * 2 * R, Y + R , j * 2 * R));
+			sphere.Init();
+			m_objects.push_back(sphere);
+		}
+	}
+
 }
 
 
