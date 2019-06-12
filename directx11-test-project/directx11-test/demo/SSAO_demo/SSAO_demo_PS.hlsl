@@ -248,6 +248,7 @@ float4 main(VertexOut pin) : SV_TARGET
 	float4 finalColor = diffuseColor * (totalAmbient + totalDiffuse) + totalSpecular;
 	finalColor.a = diffuseColor.a * totalDiffuse.a;
 
-	return finalColor;
-
+	return ambientAccess;
+	//return finalColor;
+	//return 0;
 }
