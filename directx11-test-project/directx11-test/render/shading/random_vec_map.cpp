@@ -48,7 +48,7 @@ void RandomVectorMap::Init()
 
 	D3D11_SUBRESOURCE_DATA initData;
 	initData.SysMemPitch = 256 * sizeof(PackedVector::XMCOLOR);
-	initData.SysMemSlicePitch = 256 * 256 * sizeof(PackedVector::XMCOLOR);
+	//initData.SysMemSlicePitch = 256 * 256 * sizeof(PackedVector::XMCOLOR);
 
 	PackedVector::XMCOLOR* color = new PackedVector::XMCOLOR[256 * 256];
 	for (int i = 0; i < 256; ++i)
@@ -61,7 +61,7 @@ void RandomVectorMap::Init()
 		}
 	}
 
-	initData.pSysMem = (void*)color;
+	initData.pSysMem = color;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
 	HRESULT r1 = d3dDevice->CreateTexture2D(&texDesc, &initData, &texture);
