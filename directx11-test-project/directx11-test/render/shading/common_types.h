@@ -12,6 +12,7 @@ namespace shading {
 		per_frame = 1,
 		rarely_changed = 2,
 		per_object_ambient_occlusion = 3,
+		per_object_normal_depth = 4,
 		unknown
 
 	};

@@ -7,31 +7,21 @@ struct Material
 };
 
 //SHARE THE INPUT STRUCTURE
-cbuffer PerObjectCB : register(b0)
-{
-	float4x4 W;
-	float4x4 W_inverseTraspose;
-	float4x4 WVP;
-	float4x4 TexcoordMatrix;
-	float4x4 WVPT_shadowMap;
-	float4x4 WVPT_ssao;
-	Material material;
-};
 
 
 //INPUT to the Normal/Depth PS
 struct VertexOutNormalDepth
 {
 	float4 posH : SV_POSITION;
-	float3 posW : POSITION;
-	float3 normalW : NORMAL;
-	float2 uv : TEXCOORD;
+	float3 posV : POSITION;
+	float3 normalV : NORMAL;
+	float2 uv : TEXCOORD0;
 };
 
 float4 main(VertexOutNormalDepth pin) : SV_TARGET
 {
 	//renormalize interpolated normals.
-	pin.normalW = normalize(pin.normalW);
+	pin.normalV = normalize(pin.normalV);
 
-	return float4(pin.normalW, pin.posH.z);
+	return float4(pin.normalV, pin.posH.z);
 }
