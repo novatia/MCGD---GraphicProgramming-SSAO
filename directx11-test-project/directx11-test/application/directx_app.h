@@ -52,8 +52,6 @@ namespace application {
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_backBufferView;
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthBuffer;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthBufferView;
-		//Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_ssao_backBufferView;
-		//Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_ssao_depthBufferView;
 
 
 		D3D11_VIEWPORT m_viewport;

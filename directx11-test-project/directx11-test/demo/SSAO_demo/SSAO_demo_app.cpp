@@ -103,14 +103,11 @@ void SSAODemoApp::InitRenderTechnique()
 	{
 		m_normalDepthMap.Init();
 
-		//m_rarelyChangedData.shadowMapResolution = float(m_shadowMap.Resolution());
-
 		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_VS.cso")));
 		vertexShader->SetVertexInput(std::make_shared<MeshDataVertexInput>());
 		vertexShader->AddConstantBuffer(CBufferFrequency::per_frame_normal_depth, std::make_unique<CBuffer<PerFrameDataNormalDepth>>());
 
 		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_normal_depth_PS.cso")));
-		//pixelShader->AddConstantBuffer(CBufferFrequency::per_frame_normal_depth, std::make_unique<CBuffer<PerFrameDataNormalDepth>>());
 
 		m_normalDepthPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_viewport, std::make_shared<SolidCullBackRS>(), m_normalDepthMap.AsRenderTargetView(), m_depthBufferView.Get()));
 		m_normalDepthPass.SetVertexShader(vertexShader);
@@ -394,6 +391,7 @@ void SSAODemoApp::RenderScene()
 	m_normalDepthPass.Bind();
 	m_normalDepthPass.GetState()->ClearDepthOnly();
 	m_normalDepthPass.GetState()->ClearRenderTarget(DirectX::Colors::Black);
+
 	// draw objects
 	for (render::Renderable& renderable : m_objects)
 	{

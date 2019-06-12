@@ -31,6 +31,7 @@ void NormalDepthMap::Init()
 	}
 
 	ID3D11Device* d3dDevice = service::Locator::GetD3DDevice();
+	ID3D11DeviceContext* d3dContext = service::Locator::GetD3DContext();
 	// create the shadow map texture
 	D3D11_TEXTURE2D_DESC textureDesc;
 	textureDesc.Width = m_width;
@@ -49,8 +50,10 @@ void NormalDepthMap::Init()
 	XTEST_D3D_CHECK(d3dDevice->CreateTexture2D(&textureDesc, nullptr, &texture));
 
 	XTEST_D3D_CHECK(d3dDevice->CreateRenderTargetView(texture.Get(), 0, &m_renderTargetView));
-
 	XTEST_D3D_CHECK(d3dDevice->CreateShaderResourceView(texture.Get(), 0, &m_shaderView));
+
+	float clearColor[] = { 0.0f, 0.0f, -1.0f, 1e5f };
+	d3dContext->ClearRenderTargetView(m_renderTargetView.Get(), clearColor);
 }
 
 

@@ -10,7 +10,7 @@ namespace xtest {
 	namespace render {
 		namespace shading {
 
-			// class representing a shadow map
+			// class representing a Normal Depth map
 			class NormalDepthMap
 			{
 			public:
@@ -23,7 +23,6 @@ namespace xtest {
 				D3D11_VIEWPORT Viewport() const;
 				uint32 Width() const;
 				uint32 Height() const;
-
 
 			private:
 				uint32 m_width;

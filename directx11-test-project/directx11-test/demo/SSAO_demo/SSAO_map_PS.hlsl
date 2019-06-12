@@ -27,8 +27,22 @@ cbuffer PerObjectCBAmbientOcclusion : register(b3)
 
 Texture2D normalDepthMap : register(t11);
 Texture2D randomVecMap : register(t12);
-SamplerState samNormalDepth : register(s1);
-SamplerState samRandomVec : register(s2);
+
+SamplerState samNormalDepth : register(s1)
+{
+	Filter = MIN_MAG_LINEAR_MIP_POINT;
+
+	AddressU = BORDER;
+	AddressV = BORDER;
+	BorderColor = float4(0.0f, 0.0f, 0.0f, 1e5f);
+};
+
+SamplerState samRandomVec : register(s2) 
+{
+	Filter = MIN_MAG_LINEAR_MIP_POINT;
+	AddressU = WRAP;
+	AddressV = WRAP;
+};
 
 float OcclusionFunction(float distZ)
 {

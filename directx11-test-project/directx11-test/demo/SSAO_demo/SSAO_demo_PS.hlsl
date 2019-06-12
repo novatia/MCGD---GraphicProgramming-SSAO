@@ -62,7 +62,13 @@ Texture2D shadowMap : register(t10);
 Texture2D ssaoMap : register(t13);
 
 SamplerState textureSampler : register(s0);
-SamplerState SSAOSampler : register(s3);
+SamplerState SSAOSampler : register(s3)
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = WRAP;
+	AddressV = WRAP;
+};
+
 SamplerComparisonState shadowSampler : register(s10);
 
 float4 CalculateAmbient(float4 matAmbient, float4 lightAmbient)
@@ -166,7 +172,7 @@ float4 main(VertexOut pin) : SV_TARGET
 {
 	pin.normalW = normalize(pin.normalW);
 	
-	float ambientAccess = 0.0f;
+	float ambientAccess = 1.0f;
 
 	if (useSSAOMap)
 	{
@@ -245,7 +251,7 @@ float4 main(VertexOut pin) : SV_TARGET
 		totalSpecular += specular * litFactors[i];
 	}
 
-	totalAmbient += ambientAccess;
+	totalAmbient *= ambientAccess;
 
 	float4 diffuseColor = diffuseTexture.Sample(textureSampler, pin.uv);
 	float4 finalColor = diffuseColor * (totalAmbient + totalDiffuse) + totalSpecular;
