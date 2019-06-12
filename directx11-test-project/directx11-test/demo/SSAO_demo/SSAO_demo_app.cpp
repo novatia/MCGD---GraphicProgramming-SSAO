@@ -464,7 +464,7 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.5f, 0.5f, 0.0f, 1.0f);
 
-	XMMATRIX WVPT_ssao = W * V * P * T1;
+	XMMATRIX WVPT_ssao = W* V * P * T1;
 
 	XMStoreFloat4x4(&data.W, XMMatrixTranspose(W));
 	XMStoreFloat4x4(&data.WVP, XMMatrixTranspose(WVP));
@@ -525,7 +525,7 @@ SSAODemoApp::PerFrameDataNormalDepth xtest::demo::SSAODemoApp::ToPerFrameData(co
 
 
 	XMStoreFloat4x4(&data.worldView, XMMatrixTranspose(W*V));
-	XMStoreFloat4x4(&data.worldInvTransposeView, XMMatrixInverse(nullptr, W)*V);
+	XMStoreFloat4x4(&data.worldInvTransposeView, XMMatrixTranspose( XMMatrixInverse(nullptr, W)*V));
 	XMStoreFloat4x4(&data.texTransform, XMMatrixTranspose(T));
 	XMStoreFloat4x4(&data.worldViewProj, XMMatrixTranspose(WVP));
 
