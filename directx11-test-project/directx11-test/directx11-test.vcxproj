@@ -105,6 +105,7 @@
     <ClInclude Include="application\directx_app.h" />
     <ClInclude Include="application\directx_settings.h" />
     <ClInclude Include="application\windows_app.h" />
+    <ClInclude Include="render\shading\blur_map.h" />
     <ClInclude Include="camera\camera.h" />
     <ClInclude Include="camera\spherical_camera.h" />
     <ClInclude Include="common\assert.h" />
@@ -168,6 +169,7 @@
   <ItemGroup>
     <ClCompile Include="application\directx_app.cpp" />
     <ClCompile Include="application\windows_app.cpp" />
+    <ClCompile Include="render\shading\blur_map.cpp" />
     <ClCompile Include="camera\camera.cpp" />
     <ClCompile Include="camera\spherical_camera.cpp" />
     <ClCompile Include="common\assert.cpp" />

@@ -260,6 +260,9 @@
     <ClInclude Include="render\shading\random_vec_map.h">
       <Filter>render\shading</Filter>
     </ClInclude>
+    <ClInclude Include="render\shading\blur_map.h">
+      <Filter>render\shading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -379,6 +382,9 @@
       <Filter>render\shading</Filter>
     </ClCompile>
     <ClCompile Include="render\shading\random_vec_map.cpp">
+      <Filter>render\shading</Filter>
+    </ClCompile>
+    <ClCompile Include="render\shading\blur_map.cpp">
       <Filter>render\shading</Filter>
     </ClCompile>
   </ItemGroup>
