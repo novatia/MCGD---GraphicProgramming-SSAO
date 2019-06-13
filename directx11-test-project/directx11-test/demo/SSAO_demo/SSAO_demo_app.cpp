@@ -188,17 +188,17 @@ void SSAODemoApp::InitTestRenderables()
 			xtest::mesh::MeshData mesh = xtest::mesh::GenerateSphere(R, 30, 30);
 
 
-			xtest::mesh::MeshMaterial m;
+			xtest::mesh::MeshMaterial m1;
 
-			m.normalMap  =  GetRootDir().append(LR"(\3d-objects\tiles\tiles_norm.png)");
-			m.diffuseMap =  GetRootDir().append(LR"(\3d-objects\tiles\tiles_color.png)");
-			m.glossMap   =  GetRootDir().append(LR"(\3d-objects\tiles\tiles_gloss.png)");
+			m1.normalMap  =  GetRootDir().append(LR"(\3d-objects\fabric\fabric_norm.png)");
+			m1.diffuseMap =  GetRootDir().append(LR"(\3d-objects\fabric\fabric_color.png)");
+			m1.glossMap   =  GetRootDir().append(LR"(\3d-objects\fabric\fabric_gloss.png)");
 
-			m.ambient  = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), 1.0f };
-			m.diffuse  = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), 1.0f };
-			m.specular = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(5.0f,1.0f), 1.0f };
+			m1.ambient  = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), 1.0f };
+			m1.diffuse  = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), 1.0f };
+			m1.specular = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(5.0f,1.0f), 1.0f };
 
-			render::Renderable sphere{ mesh , m };
+			render::Renderable sphere{ mesh , m1};
 
 			sphere.SetTransform(XMMatrixRotationY(math::ToRadians(0)) * XMMatrixTranslation(i * 2 * R, Y + R, j * 2 * R));
 			sphere.Init();
@@ -228,7 +228,7 @@ void SSAODemoApp::InitRenderables()
 void SSAODemoApp::OnResized()
 {
 	application::DirectxApp::OnResized();
-	m_normalDepthMap.ResetTargetView(m_viewport.Width, m_viewport.Height);
+	m_normalDepthMap.ResetTargetView(uint32(m_viewport.Width), uint32(m_viewport.Height));
 	m_normalDepthPass.GetState()->ChangeRenderTargetView(m_normalDepthMap.AsRenderTargetView());
 	m_normalDepthPass.GetState()->ChangeDepthStencilView(m_depthBufferView.Get());
 	m_normalDepthPass.GetState()->ChangeViewPort(m_viewport);
@@ -242,7 +242,7 @@ void SSAODemoApp::OnResized()
 	v.MinDepth = 0.0f;
 	v.MaxDepth = 1.0f;
 	m_SSAOMap.SetViewport(v);
-	m_SSAOMap.ResetTargetView(m_viewport.Width / 2, m_viewport.Height / 2);
+	m_SSAOMap.ResetTargetView(uint32(m_viewport.Width / 2), uint32(m_viewport.Height / 2));
 	m_SSAOPass.GetState()->ChangeRenderTargetView(m_SSAOMap.AsRenderTargetView());
 	m_SSAOPass.GetState()->ChangeViewPort(m_SSAOMap.Viewport());
 
