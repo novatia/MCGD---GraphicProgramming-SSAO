@@ -228,6 +228,23 @@ void SSAODemoApp::InitRenderables()
 void SSAODemoApp::OnResized()
 {
 	application::DirectxApp::OnResized();
+	m_normalDepthMap.ResetTargetView(m_viewport.Width, m_viewport.Height);
+	m_normalDepthPass.GetState()->ChangeRenderTargetView(m_normalDepthMap.AsRenderTargetView());
+	m_normalDepthPass.GetState()->ChangeDepthStencilView(m_depthBufferView.Get());
+	m_normalDepthPass.GetState()->ChangeViewPort(m_viewport);
+
+
+	D3D11_VIEWPORT v;
+	v.TopLeftX = 0.0f;
+	v.TopLeftY = 0.0f;
+	v.Width = m_viewport.Width / 2;
+	v.Height = m_viewport.Height / 2;
+	v.MinDepth = 0.0f;
+	v.MaxDepth = 1.0f;
+	m_SSAOMap.SetViewport(v);
+	m_SSAOMap.ResetTargetView(m_viewport.Width / 2, m_viewport.Height / 2);
+	m_SSAOPass.GetState()->ChangeRenderTargetView(m_SSAOMap.AsRenderTargetView());
+	m_SSAOPass.GetState()->ChangeViewPort(m_SSAOMap.Viewport());
 
 	//update the render pass state with the resized render target and depth buffer
 	m_renderPass.GetState()->ChangeRenderTargetView(m_backBufferView.Get());
@@ -508,7 +525,7 @@ void SSAODemoApp::RenderScene()
 	m_SSAOPass.Bind();
 
 	//m_SSAOPass.GetState()->ClearDepthOnly();
-	m_SSAOPass.GetState()->ClearRenderTarget(DirectX::Colors::White);
+	m_SSAOPass.GetState()->ClearRenderTarget(DirectX::Colors::Black);
 
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, m_randomVecMap.AsShaderView());
