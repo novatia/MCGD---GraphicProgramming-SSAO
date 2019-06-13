@@ -43,7 +43,8 @@ SSAODemoApp::SSAODemoApp(HINSTANCE instance,
 {}
 
 SSAODemoApp::~SSAODemoApp()
-{}
+{
+}
 
 void SSAODemoApp::Init()
 {
@@ -56,7 +57,7 @@ void SSAODemoApp::Init()
 	InitTestRenderables();
 	//InitRenderables();
 	service::Locator::GetMouse()->AddListener(this);
-	service::Locator::GetKeyboard()->AddListener(this, { input::Key::F, input::Key::F1, input::Key::F2, input::Key::U, input::Key::Y, input::Key::J, input::Key::H, input::Key::M, input::Key::N , input::Key::O, input::Key::P });
+	service::Locator::GetKeyboard()->AddListener(this, { input::Key::F, input::Key::F1, input::Key::F2, input::Key::U, input::Key::Y, input::Key::J, input::Key::H, input::Key::M, input::Key::N , input::Key::O, input::Key::P, input::Key::K, input::Key::L });
 }
 
 void SSAODemoApp::InitLights()
@@ -130,6 +131,7 @@ void SSAODemoApp::InitRenderTechnique()
 
 		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_map_PS.cso")));
 		pixelShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
+		pixelShader->AddConstantBuffer(CBufferFrequency::rarely_changed, std::make_unique<CBuffer<RarelyChangedData>>());
 		pixelShader->AddConstantBuffer(CBufferFrequency::per_object_ambient_occlusion, std::make_unique<CBuffer<PerObjectCBAmbientOcclusion>>());
 		pixelShader->AddSampler(SamplerUsage::normal_depth_map, std::make_shared<NormalDepthSampler>());
 		pixelShader->AddSampler(SamplerUsage::random_vec, std::make_shared<RandomVecSampler>());
@@ -139,6 +141,7 @@ void SSAODemoApp::InitRenderTechnique()
 		m_SSAOPass.SetPixelShader(pixelShader);
 		m_SSAOPass.Init();
 	}
+
 	// render pass
 	{
 		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\SSAO_demo_VS.cso")));
@@ -186,7 +189,6 @@ void SSAODemoApp::InitTestRenderables()
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
 			xtest::mesh::MeshData mesh = xtest::mesh::GenerateSphere(R, 30, 30);
-
 
 			xtest::mesh::MeshMaterial m;
 
@@ -311,6 +313,10 @@ bool decreaseOcclusionFadeStart = false;
 bool decreaseFadeEnd = false;
 bool decreaseSurfaceEpsilon = false;
 
+bool increaseMultiplier = false;
+bool decreaseMultiplier = false;
+
+
 void SSAODemoApp::OnKeyStatusChange(input::Key key, const input::KeyStatus& status)
 {
 	if (key == input::Key::F && status.isDown)
@@ -408,6 +414,31 @@ void SSAODemoApp::OnKeyStatusChange(input::Key key, const input::KeyStatus& stat
 	}
 
 
+
+
+	if (key == input::Key::L && status.isDown)
+	{
+		m_SSAOMap.m_multiplier += 0.05f;
+		increaseMultiplier = true;
+	}
+	else
+	{
+		increaseMultiplier = false;
+	}
+
+	if (key == input::Key::K && status.isDown)
+	{
+		m_SSAOMap.m_multiplier -= 0.05f;
+		decreaseMultiplier = true;
+		m_isRarelyChangedDataDirty = true;
+	}
+	else
+	{
+		decreaseMultiplier = false;
+		m_isRarelyChangedDataDirty = true;
+	}
+
+
 	if (key == input::Key::F2 && status.isDown)
 	{
 		m_rarelyChangedData.useSSAOMap = !m_rarelyChangedData.useSSAOMap;
@@ -474,10 +505,25 @@ void SSAODemoApp::UpdateScene(float deltaSeconds)
 		m_SSAOMap.m_surfaceEpsilon -= 0.0001f;
 	}
 
+	if (increaseMultiplier)
+	{
+		m_SSAOMap.m_multiplier += 0.05f;
+		m_isRarelyChangedDataDirty = true;
+	}
+
+	if (decreaseMultiplier)
+	{
+		m_SSAOMap.m_multiplier -= 0.05f;
+		m_isRarelyChangedDataDirty = true;
+	}
+
+	m_rarelyChangedData.SSOAMultiplier = m_SSAOMap.m_multiplier;
+
 	// RarelyChangedCB
 	if (m_isRarelyChangedDataDirty)
 	{
 		m_renderPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::rarely_changed)->UpdateBuffer(m_rarelyChangedData);
+		m_SSAOPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::rarely_changed)->UpdateBuffer(m_rarelyChangedData);
 		m_isRarelyChangedDataDirty = false;
 	}
 
@@ -592,6 +638,8 @@ void SSAODemoApp::RenderScene()
 	ss << m_SSAOMap.m_occlusionFadeEnd;
 	ss << " Occlusion Epsilon: ";
 	ss << m_SSAOMap.m_surfaceEpsilon;
+	ss << " Occlusion multiplier: ";
+	ss << m_SSAOMap.m_multiplier;
 
 	std::string s(ss.str());
 

@@ -7,6 +7,14 @@ struct Material
 	float4 specular;
 };
 
+cbuffer RarelyChangedCB : register(b2)
+{
+	bool useShadowMap;
+	float shadowMapResolution;
+	bool useSSAOMap;
+	float SSOAMultiplier = 4;
+}
+
 struct VertexOutAmbientOcclusion
 {
 	float4 posH : SV_POSITION;
@@ -84,5 +92,5 @@ float main(VertexOutAmbientOcclusion pin) : SV_TARGET
 
 	occlusionSum /= SAMPLE_COUNT;
 	float access = 1.0f - occlusionSum;
-	return saturate(pow(access, 4.0f));
+	return saturate(pow(access, SSOAMultiplier));
 }

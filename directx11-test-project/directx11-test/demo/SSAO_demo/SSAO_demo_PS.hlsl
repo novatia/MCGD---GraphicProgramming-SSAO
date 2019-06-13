@@ -52,6 +52,7 @@ cbuffer RarelyChangedCB : register(b2)
 	bool useShadowMap;
 	float shadowMapResolution;
 	bool useSSAOMap;
+	float SSOAMultiplier=1;
 }
 
 Texture2D diffuseTexture : register(t0);

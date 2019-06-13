@@ -86,7 +86,7 @@ namespace xtest {
 				int32 useShadowMap;
 				float shadowMapResolution;
 				int32 useSSAOMap;
-				float _explicit_pad_;
+				float SSOAMultiplier;
 			};
 
 			struct PerObjectCBAmbientOcclusion
@@ -136,7 +136,6 @@ namespace xtest {
 			PerFrameDataNormalDepth ToPerFrameData(const render::Renderable& renderable);
 
 			PerObjectShadowMapData ToPerObjectShadowMapData(const render::Renderable& renderable, const std::string& meshName);
-
 
 			DirectionalLight m_dirKeyLight;
 			DirectionalLight m_dirFillLight;
