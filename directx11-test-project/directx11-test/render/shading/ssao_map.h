@@ -54,6 +54,7 @@ namespace xtest {
 				
 				ID3D11ShaderResourceView* AsShaderView();
 				ID3D11RenderTargetView* AsRenderTargetView();
+				
 				D3D11_VIEWPORT Viewport() const;
 				void SetViewport(D3D11_VIEWPORT& view);
 				void ResetTargetView(uint32 n_width, uint32 n_height);
@@ -69,6 +70,7 @@ namespace xtest {
 
 				void Bind();
 				void Draw();
+				void Release();
 
 				/*uint32 NoiseSize() const;
 				uint32 KernelSize() const;
