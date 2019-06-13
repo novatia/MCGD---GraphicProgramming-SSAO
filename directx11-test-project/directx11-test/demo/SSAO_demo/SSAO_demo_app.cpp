@@ -586,12 +586,18 @@ SSAODemoApp::PerFrameDataNormalDepth xtest::demo::SSAODemoApp::ToPerFrameData(co
 	XMMATRIX P = m_camera.GetProjectionMatrix();
 	
 	XMMATRIX WV = W * V;
-	XMMATRIX W_InverseTransposeV = W_InverseTranspose * V;
+	//XMMATRIX W_InverseTransposeV = W_InverseTranspose * V;  // IMMAGINE NORMALE BLU E MARRONE
+	XMMATRIX W_InverseTransposeV = W_InverseTranspose; //IMMAGINE NORMALE VERDE
+
 	XMMATRIX WVP = W * V * P;
 
 	//[-1,1]->[0,1]
-	static const XMMATRIX T = XMMatrixScaling(1.0f, 1.0f, 1.0f);
-
+	static const XMMATRIX T = XMMatrixScaling(1.0f, 1.0f, 1.0f); //SORGENTE MeshViewDemo.cpp 
+	/*XMMATRIX T(0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f); //TENTATIVO 
+	*/
 	XMStoreFloat4x4(&data.worldView, XMMatrixTranspose(WV));
 	XMStoreFloat4x4(&data.worldInvTransposeView, XMMatrixTranspose(W_InverseTransposeV));
 	XMStoreFloat4x4(&data.texTransform, XMMatrixTranspose(T));
@@ -702,9 +708,14 @@ float RandomFloat(float min, float max)
 	return min + scale * (max - min);      /* [min, max] */
 }
 
+float lerp(float a, float b, float f)
+{
+	return a + f * (b - a);
+}
+
 void SSAODemoApp::BuildOffsetVectors()
 {
-	srand((unsigned)std::time(NULL));
+	/*srand((unsigned)std::time(NULL));
 	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++) 
 	{
 		m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), 0.0f);
@@ -715,6 +726,35 @@ void SSAODemoApp::BuildOffsetVectors()
 	{
 		//float s = RandomFloat(0.25f, 1.0f);
 		XMVECTOR v = 1 * XMVector4Normalize(XMLoadFloat4(&m_offsets[i]));
+		XMStoreFloat4(&m_offsets[i], v);
+	}*/
+
+
+	/*
+	We vary the x and y direction in tangent space between -1.0 and 1.0 and vary the z direction
+	of the samples between 0.0 and 1.0 (if we varied the z direction between -1.0 and 1.0 as well 
+	we'd have a sphere sample kernel). As the sample kernel will be oriented along the surface normal, 
+	the resulting sample vectors will all end up in the hemisphere.
+
+	Currently, all samples are randomly distributed in the sample kernel, but we'd rather place 
+	a larger weight on occlusions close to the actual fragment as to distribute the kernel samples
+	closer to the origin. We can do this with an accelerating interpolation function:
+	*/
+	for (unsigned int i = 0; i < SSAOData::SAMPLE_COUNT; ++i)
+	{
+		m_offsets[i] = DirectX::XMFLOAT4( 
+			(RandomFloat(0.0f, 1.0f) * 2.0 - 1.0),
+			(RandomFloat(0.0f, 1.0f) * 2.0 - 1.0),
+			RandomFloat(0.0f, 1.0f),
+				0.0f
+		);
+		
+		float s = RandomFloat(0.1f, 1.0f);
+		float scale = (float)i / SSAOData::SAMPLE_COUNT;
+		scale = lerp(0.1f, 1.0f, scale * scale);
+		s *= scale;
+		XMVECTOR v = s * XMVector4Normalize(XMLoadFloat4(&m_offsets[i]));
+
 		XMStoreFloat4(&m_offsets[i], v);
 	}
 }

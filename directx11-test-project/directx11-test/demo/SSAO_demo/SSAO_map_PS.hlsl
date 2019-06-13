@@ -62,7 +62,8 @@ float main(VertexOutAmbientOcclusion pin) : SV_TARGET
 	float3 n = normalDepth.xyz;
 	float pz = normalDepth.w;
 	float3 p = (pz / pin.toFarPlane.z)*pin.toFarPlane;
-	float3 randVec = 2.0f * randomVecMap.SampleLevel(samRandomVec, 4.0f*pin.uv, 0.0f).rgb - 1.0f;
+	//float3 randVec = 2.0f * randomVecMap.SampleLevel(samRandomVec, 4.0f*pin.uv, 0.0f).rgb - 1.0f;
+	float3 randVec = 1;
 	float occlusionSum = 0.0f;
 
 	[unroll]
