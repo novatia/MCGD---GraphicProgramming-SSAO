@@ -87,3 +87,39 @@ uint32 NormalDepthMap::Height() const
 {
 	return m_height;
 }
+
+void xtest::render::shading::NormalDepthMap::ResetTargetView(uint32 n_width, uint32 n_height)
+{
+	m_renderTargetView.Reset();
+	m_shaderView.Reset();
+	// already initialized
+	if (m_shaderView)
+	{
+		return;
+	}
+
+	ID3D11Device* d3dDevice = service::Locator::GetD3DDevice();
+	ID3D11DeviceContext* d3dContext = service::Locator::GetD3DContext();
+	// create the shadow map texture
+	D3D11_TEXTURE2D_DESC textureDesc;
+	textureDesc.Width = n_width;
+	textureDesc.Height = n_height;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT; // modify
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = (D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
+	XTEST_D3D_CHECK(d3dDevice->CreateTexture2D(&textureDesc, nullptr, &texture));
+
+	XTEST_D3D_CHECK(d3dDevice->CreateRenderTargetView(texture.Get(), 0, &m_renderTargetView));
+	XTEST_D3D_CHECK(d3dDevice->CreateShaderResourceView(texture.Get(), 0, &m_shaderView));
+
+	float clearColor[] = { 0.0f, 0.0f, -1.0f, 1e5f };
+	d3dContext->ClearRenderTargetView(m_renderTargetView.Get(), clearColor);
+}
