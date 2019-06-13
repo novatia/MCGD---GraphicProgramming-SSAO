@@ -64,6 +64,6 @@ float4 main(VertexOutAmbientOcclusion pin) : SV_TARGET
 		}
 	}
 	//return c;
-	return c;
-	//return color / totalWeight;
+	//return c;
+	return color / totalWeight;
 }

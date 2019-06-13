@@ -141,7 +141,7 @@ namespace xtest {
 
 			PerObjectShadowMapData ToPerObjectShadowMapData(const render::Renderable& renderable, const std::string& meshName);
 
-			BlurCBuffer ToPerFrameBlur();
+			BlurCBuffer ToPerFrameBlur(bool);
 
 			DirectionalLight m_dirKeyLight;
 			DirectionalLight m_dirFillLight;
@@ -155,10 +155,12 @@ namespace xtest {
 			render::shading::RenderPass m_normalDepthPass;
 			render::shading::RenderPass m_SSAOPass;
 			render::shading::RenderPass m_SSAOBlurPass;
+			render::shading::RenderPass m_SSAOBlurHPass;
 			render::shading::RenderPass m_renderPass;
 
 			render::shading::ShadowMap m_shadowMap;
 			render::shading::SSAOMap m_SSAOMap;
+			render::shading::BlurMap m_BlurHMap;
 			render::shading::BlurMap m_BlurMap;
 			render::shading::NormalDepthMap m_normalDepthMap;
 			render::shading::RandomVectorMap m_randomVecMap;

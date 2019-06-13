@@ -35,10 +35,12 @@ SSAODemoApp::SSAODemoApp(HINSTANCE instance,
 	, m_shadowPass()
 	, m_SSAOPass()
 	, m_SSAOBlurPass()
+	, m_SSAOBlurHPass()
 	, m_renderPass()
 	, m_shadowMap(2048)
 	, m_SSAOMap(windowSettings.width / 2, windowSettings.height / 2)//, 1, 128, 4, 2.0f, 3.0f)
 	, m_BlurMap(windowSettings.width / 2, windowSettings.height / 2)//, 1, 128, 4, 2.0f, 3.0f)
+	, m_BlurHMap(windowSettings.width / 2, windowSettings.height / 2)//, 1, 128, 4, 2.0f, 3.0f)
 	, m_normalDepthMap(windowSettings.width, windowSettings.height)
 	, m_randomVecMap(256, 256)
 	, m_sceneBoundingSphere({ 0.f, 0.f, 0.f }, 21.f)
@@ -146,7 +148,28 @@ void SSAODemoApp::InitRenderTechnique()
 
 	//blur pass
 	{
-		//m_SSAOMap.Init();
+		m_BlurHMap.Init();
+
+		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_map_VS.cso")));
+		vertexShader->SetVertexInput(std::make_shared<VertexInputAmbientOcclusion>());
+		vertexShader->AddConstantBuffer(CBufferFrequency::per_object_ambient_occlusion, std::make_unique<CBuffer<PerObjectCBAmbientOcclusion>>());
+
+		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_blur_PS.cso")));
+		pixelShader->AddConstantBuffer(CBufferFrequency::per_frame_blur, std::make_unique<CBuffer<BlurCBuffer>>());
+
+		pixelShader->AddSampler(SamplerUsage::normal_depth_map, std::make_shared<NormalDepthSampler>());
+		pixelShader->AddSampler(SamplerUsage::ssao_blur, std::make_shared<SSAOBlurSampler>());
+
+		m_SSAOBlurHPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_BlurHMap.Viewport(), std::make_shared<SolidCullBackRS>(), m_BlurHMap.AsRenderTargetView(), nullptr)); // nullptr
+		m_SSAOBlurHPass.SetVertexShader(vertexShader);
+		m_SSAOBlurHPass.SetPixelShader(pixelShader);
+		m_SSAOBlurHPass.Init();
+	}
+
+
+	//blur pass
+	{
+		m_BlurMap.Init();
 
 		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_map_VS.cso")));
 		vertexShader->SetVertexInput(std::make_shared<VertexInputAmbientOcclusion>());
@@ -614,6 +637,35 @@ void SSAODemoApp::RenderScene()
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, nullptr); // randomVecMap?
 	m_d3dAnnotation->EndEvent();
 
+
+
+	//****************************************
+	// Blur Pass Horizontal
+	{
+		m_d3dAnnotation->BeginEvent(L"blur-pass");
+		m_SSAOBlurHPass.Bind();
+
+		//m_SSAOPass.GetState()->ClearDepthOnly();
+		//m_SSAOBlurHPass.GetState()->ClearRenderTarget(DirectX::Colors::Black);
+
+		m_SSAOBlurHPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
+		m_SSAOBlurHPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, m_SSAOMap.AsShaderView());
+
+		//attach CB
+		BlurCBuffer data1 = ToPerFrameBlur(true);
+		PerObjectCBAmbientOcclusion data2 = ToPerObjectAmbientOcclusion();
+		m_SSAOBlurHPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data2);
+		m_SSAOBlurHPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_frame_blur)->UpdateBuffer(data1);
+		// compute MAP
+		m_SSAOMap.Draw();
+	}
+
+	m_SSAOBlurHPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, nullptr);
+	m_SSAOBlurHPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, nullptr); // randomVecMap?
+	m_d3dAnnotation->EndEvent();
+
+
+
 	//****************************************
 	// Blur Pass
 	{
@@ -624,21 +676,20 @@ void SSAODemoApp::RenderScene()
 		//m_SSAOBlurPass.GetState()->ClearRenderTarget(DirectX::Colors::Black);
 
 		m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
-		m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, m_SSAOMap.AsShaderView());
+		m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, m_BlurMap.AsShaderView());
 
 		//attach CB
-		BlurCBuffer data1 = ToPerFrameBlur();
+		BlurCBuffer data1 = ToPerFrameBlur(false);
 		PerObjectCBAmbientOcclusion data2 = ToPerObjectAmbientOcclusion();
 		m_SSAOBlurPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data2);
 		m_SSAOBlurPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_frame_blur)->UpdateBuffer(data1);
 		// compute MAP
-		m_SSAOMap.Draw();
+		m_BlurMap.Draw();
 	}
 
 	m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, nullptr);
 	m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, nullptr); // randomVecMap?
 	m_d3dAnnotation->EndEvent();
-
 
 	//****************************************
 	m_d3dAnnotation->BeginEvent(L"render-scene");
@@ -646,7 +697,7 @@ void SSAODemoApp::RenderScene()
 	m_renderPass.GetState()->ClearDepthOnly();
 	m_renderPass.GetState()->ClearRenderTarget(DirectX::Colors::DarkGray);
 	m_renderPass.GetPixelShader()->BindTexture(TextureUsage::shadow_map, m_shadowMap.AsShaderView());
-	m_renderPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, m_BlurMap.AsShaderView());
+	m_renderPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, m_BlurHMap.AsShaderView());
 
 	// draw objects
 	for (render::Renderable& renderable : m_objects)
@@ -826,9 +877,7 @@ SSAODemoApp::PerObjectShadowMapData SSAODemoApp::ToPerObjectShadowMapData(const 
 	return data;
 }
 
-
-
-SSAODemoApp::BlurCBuffer SSAODemoApp::ToPerFrameBlur()
+SSAODemoApp::BlurCBuffer SSAODemoApp::ToPerFrameBlur(bool horizontalBlur = false)
 {
 	BlurCBuffer data;
 	data.texelWitdth = 1.0f / m_SSAOMap.Viewport().Width;

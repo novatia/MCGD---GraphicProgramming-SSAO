@@ -105,35 +105,15 @@ void xtest::render::shading::BlurMap::Init()
 
 }
 
-//void xtest::render::shading::SSAOMap::SetNoiseSize(uint32 noise_size)
-//{
-//	m_noise_size = noise_size;
-//}
-//
-//void xtest::render::shading::SSAOMap::SetKernelSize(uint32 kernel_size)
-//{
-//	m_kernel_size = kernel_size;
-//}
-//
-//void xtest::render::shading::SSAOMap::SetRadius(float radius)
-//{
-//	m_radius = radius;
-//}
-//
-//void xtest::render::shading::SSAOMap::SetPower(float power)
-//{
-//	m_power = power;
-//}
-
 ID3D11ShaderResourceView * xtest::render::shading::BlurMap::AsShaderView()
 {
-	XTEST_ASSERT(m_shaderView, L"shadow map uninitialized");
+	XTEST_ASSERT(m_shaderView, L"Blur map uninitialized");
 	return m_shaderView.Get();
 }
 
 ID3D11RenderTargetView * xtest::render::shading::BlurMap::AsRenderTargetView()
 {
-	XTEST_ASSERT(m_renderTargetView, L"shadow map uninitialized");
+	XTEST_ASSERT(m_renderTargetView, L"Blur map uninitialized");
 	return m_renderTargetView.Get();
 }
 
