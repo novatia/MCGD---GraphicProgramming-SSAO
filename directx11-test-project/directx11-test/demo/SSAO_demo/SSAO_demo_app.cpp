@@ -652,7 +652,7 @@ void SSAODemoApp::RenderScene()
 		m_SSAOBlurHPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, m_SSAOMap.AsShaderView());
 
 		//attach CB
-		BlurCBuffer data1 = ToPerFrameBlur(true);
+		BlurCBuffer data1 = ToPerFrameBlur(false);
 		PerObjectCBAmbientOcclusion data2 = ToPerObjectAmbientOcclusion();
 		m_SSAOBlurHPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data2);
 		m_SSAOBlurHPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_frame_blur)->UpdateBuffer(data1);
@@ -664,8 +664,6 @@ void SSAODemoApp::RenderScene()
 	m_SSAOBlurHPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, nullptr); // randomVecMap?
 	m_d3dAnnotation->EndEvent();
 
-
-
 	//****************************************
 	// Blur Pass
 	{
@@ -676,15 +674,15 @@ void SSAODemoApp::RenderScene()
 		//m_SSAOBlurPass.GetState()->ClearRenderTarget(DirectX::Colors::Black);
 
 		m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
-		m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, m_BlurMap.AsShaderView());
+		m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, m_BlurHMap.AsShaderView());
 
 		//attach CB
-		BlurCBuffer data1 = ToPerFrameBlur(false);
+		BlurCBuffer data1 = ToPerFrameBlur(true);
 		PerObjectCBAmbientOcclusion data2 = ToPerObjectAmbientOcclusion();
 		m_SSAOBlurPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data2);
 		m_SSAOBlurPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_frame_blur)->UpdateBuffer(data1);
 		// compute MAP
-		m_BlurMap.Draw();
+		m_BlurHMap.Draw();
 	}
 
 	m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, nullptr);
@@ -882,6 +880,6 @@ SSAODemoApp::BlurCBuffer SSAODemoApp::ToPerFrameBlur(bool horizontalBlur = false
 	BlurCBuffer data;
 	data.texelWitdth = 1.0f / m_SSAOMap.Viewport().Width;
 	data.texelHeight = 1.0f / m_SSAOMap.Viewport().Height;
-	data.horizontalBlur = false;
+	data.horizontalBlur = horizontalBlur;
 	return data;
 }
