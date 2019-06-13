@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "ssao_map.h"
 #include <service/locator.h>
+#include "DirectXMath.h"
+
+using namespace DirectX;
 
 xtest::render::shading::SSAOData::VertexInAmbientOcclusion::VertexInAmbientOcclusion(DirectX::XMFLOAT3 inPos, DirectX::XMFLOAT3 inToFarPlaneIndex, DirectX::XMFLOAT2 inUv)
 {
@@ -118,6 +121,8 @@ void xtest::render::shading::SSAOMap::Init()
 	m_viewport.Height = m_height;
 	m_viewport.MinDepth = 0.0f;
 	m_viewport.MaxDepth = 1.0f;
+
+	BuildKernelVectors();
 }
 
 //void xtest::render::shading::SSAOMap::SetNoiseSize(uint32 noise_size)
@@ -164,6 +169,85 @@ uint32 xtest::render::shading::SSAOMap::Width() const
 uint32 xtest::render::shading::SSAOMap::Height() const
 {
 	return m_height;
+}
+
+float xtest::render::shading::SSAOMap::RandomFloat(float min, float max)
+{
+		float scale = rand() / (float)RAND_MAX; /* [0, 1.0] */
+		return min + scale * (max - min);      /* [min, max] */
+}
+
+void xtest::render::shading::SSAOMap::BuildKernelVectors()
+{
+	/*srand((unsigned)std::time(NULL));
+	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++)
+	{
+		m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), 0.0f);
+		//m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.05f, 255.0f), RandomFloat(0.05f, 255.0f), RandomFloat(0.05f, 255.0f), 255.0f);
+	}
+
+	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++)
+	{
+		//float s = RandomFloat(0.25f, 1.0f);
+		XMVECTOR v = 1 * XMVector4Normalize(XMLoadFloat4(&m_offsets[i]));
+		XMStoreFloat4(&m_offsets[i], v);
+	}*/
+
+
+	/*
+	We vary the x and y direction in tangent space between -1.0 and 1.0 and vary the z direction
+	of the samples between 0.0 and 1.0 (if we varied the z direction between -1.0 and 1.0 as well
+	we'd have a sphere sample kernel). As the sample kernel will be oriented along the surface normal,
+	the resulting sample vectors will all end up in the hemisphere.
+
+	Currently, all samples are randomly distributed in the sample kernel, but we'd rather place
+	a larger weight on occlusions close to the actual fragment as to distribute the kernel samples
+	closer to the origin. We can do this with an accelerating interpolation function:
+	*/
+	for (unsigned int i = 0; i < SSAOData::SAMPLE_COUNT; ++i)
+	{
+		m_offsets[i] = DirectX::XMFLOAT4(
+			(SSAOMap::RandomFloat(0.0f, 1.0f) * 2.0f - 1.0f),
+			(SSAOMap::RandomFloat(0.0f, 1.0f) * 2.0f - 1.0f),
+			SSAOMap::RandomFloat(0.0f, 1.0f),
+			0.0f
+		);
+
+		float s = SSAOMap::RandomFloat(0.1f, 1.0f);
+		float scale = (float)i / SSAOData::SAMPLE_COUNT;
+		scale = SSAOMap::lerp(0.1f, 1.0f, scale * scale);
+		s *= scale;
+		DirectX::XMVECTOR v = s * XMVector4Normalize(DirectX::XMLoadFloat4(&m_offsets[i]));
+
+		DirectX::XMStoreFloat4(&m_offsets[i], v);
+	}
+}
+
+void xtest::render::shading::SSAOMap::BuildFrustumFarCorners(float aspect,float fovy, float farZ)
+{
+	float halfHeight = farZ * tanf(0.5f * fovy);
+	float halfWidth = aspect * halfHeight;
+
+	m_frustumFarCorner[0] = DirectX::XMFLOAT4(-halfWidth, -halfHeight, farZ, 0.0f);
+	m_frustumFarCorner[1] = DirectX::XMFLOAT4(-halfWidth, +halfHeight, farZ, 0.0f);
+	m_frustumFarCorner[2] = DirectX::XMFLOAT4(+halfWidth, +halfHeight, farZ, 0.0f);
+	m_frustumFarCorner[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, farZ, 0.0f);
+
+}
+
+DirectX::XMFLOAT4* xtest::render::shading::SSAOMap::GetFrustumFarCorner()
+{
+	return m_frustumFarCorner;
+}
+
+DirectX::XMFLOAT4* xtest::render::shading::SSAOMap::GetKernelVectors()
+{
+	return m_offsets;
+}
+
+float  xtest::render::shading::SSAOMap::lerp(float a, float b, float f)
+{
+	return a + f * (b - a);
 }
 
 void xtest::render::shading::SSAOMap::Bind()

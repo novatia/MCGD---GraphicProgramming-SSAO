@@ -57,6 +57,13 @@ namespace xtest {
 				D3D11_VIEWPORT Viewport() const;
 				uint32 Width() const;
 				uint32 Height() const;
+				static float RandomFloat(float, float);
+				static float lerp(float,float,float);
+				void BuildKernelVectors();
+				void BuildFrustumFarCorners(float aspect, float fovy, float farZ);
+				DirectX::XMFLOAT4* GetFrustumFarCorner();
+				DirectX::XMFLOAT4* GetKernelVectors();
+
 				void Bind();
 				void Draw();
 
@@ -78,7 +85,8 @@ namespace xtest {
 				uint32 m_height;
 				uint32 m_width;
 
-				
+				DirectX::XMFLOAT4 m_frustumFarCorner[4];
+				DirectX::XMFLOAT4 m_offsets[xtest::render::shading::SSAOData::SAMPLE_COUNT];
 				/*uint32 m_noise_size;
 				uint32 m_kernel_size;
 				float m_radius;

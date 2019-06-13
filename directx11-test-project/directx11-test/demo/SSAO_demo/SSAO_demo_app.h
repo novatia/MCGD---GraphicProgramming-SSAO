@@ -125,12 +125,11 @@ namespace xtest {
 			virtual void OnWheelScroll(input::ScrollStatus scroll) override;
 			virtual void OnMouseMove(const DirectX::XMINT2& movement, const DirectX::XMINT2& currentPos) override;
 			virtual void OnKeyStatusChange(input::Key key, const input::KeyStatus& status) override;
-			void BuildFrustumFarCorners(float fovy, float farz);
-			void BuildOffsetVectors();
 		private:
 
 			void InitRenderTechnique();
 			void InitRenderables();
+			void InitTestRenderables();
 			void InitLights();
 			PerObjectData ToPerObjectData(const render::Renderable& renderable, const std::string& meshName);
 			PerObjectCBAmbientOcclusion ToPerObjectAmbientOcclusion();
@@ -158,11 +157,6 @@ namespace xtest {
 			render::shading::NormalDepthMap m_normalDepthMap;
 			render::shading::RandomVectorMap m_randomVecMap;
 			scene::BoundingSphere m_sceneBoundingSphere;
-
-			int m_renderTargetWidth;
-			int m_renderTargetHeight;
-			DirectX::XMFLOAT4 m_frustumFarCorner[4];
-			DirectX::XMFLOAT4 m_offsets[xtest::render::shading::SSAOData::SAMPLE_COUNT];
 		};
 
 	} // demo

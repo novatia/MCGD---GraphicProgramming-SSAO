@@ -19,6 +19,7 @@ using namespace xtest::demo;
 using Microsoft::WRL::ComPtr;
 
 
+
 SSAODemoApp::SSAODemoApp(HINSTANCE instance,
 	const application::WindowSettings& windowSettings,
 	const application::DirectxSettings& directxSettings,
@@ -52,7 +53,8 @@ void SSAODemoApp::Init()
 
 	InitLights();
 	InitRenderTechnique();
-	InitRenderables();
+	InitTestRenderables();
+	//InitRenderables();
 	service::Locator::GetMouse()->AddListener(this);
 	service::Locator::GetKeyboard()->AddListener(this, { input::Key::F, input::Key::F1, input::Key::F2, input::Key::U, input::Key::Y, input::Key::J, input::Key::H, input::Key::M, input::Key::N , input::Key::O, input::Key::P });
 }
@@ -157,6 +159,54 @@ void SSAODemoApp::InitRenderTechnique()
 	}
 }
 
+void SSAODemoApp::InitTestRenderables()
+{
+
+	int size = 20;
+	float R = 1;
+	float Y = 5;
+
+	xtest::mesh::MeshMaterial m;
+
+	m.normalMap  = L"" + GetRootDir().append(LR"(\3d-objects\tiles\tiles_norm.png)");
+	m.diffuseMap = L"" + GetRootDir().append(LR"(\3d-objects\tiles\tiles_color.png)");
+	m.glossMap   = L"" + GetRootDir().append(LR"(\3d-objects\tiles\tiles_gloss.png)");
+	
+	m.ambient = { 1.0f,1.0f,1.0f,1.0f };
+	m.diffuse = { 1.0f,1.0f,1.0f,1.0f };
+	m.specular = { 1.0f,1.0f,1.0f,1.0f };
+
+	xtest::mesh::MeshData plane = xtest::mesh::GeneratePlane((size + 1)* R * 2, (size + 1)*R * 2, size, size);
+	render::Renderable planer{ plane , m };
+	planer.SetTransform(XMMatrixRotationY(math::ToRadians(0)) * XMMatrixTranslation(size*R, Y, size *  R));
+	planer.Init();
+
+	m_objects.push_back(planer);
+
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			xtest::mesh::MeshData mesh = xtest::mesh::GenerateSphere(R, 30, 30);
+
+
+			xtest::mesh::MeshMaterial m;
+
+			m.normalMap  =  GetRootDir().append(LR"(\3d-objects\tiles\tiles_norm.png)");
+			m.diffuseMap =  GetRootDir().append(LR"(\3d-objects\tiles\tiles_color.png)");
+			m.glossMap   =  GetRootDir().append(LR"(\3d-objects\tiles\tiles_gloss.png)");
+
+			m.ambient  = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), 1.0f };
+			m.diffuse  = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), 1.0f };
+			m.specular = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(5.0f,1.0f), 1.0f };
+
+			render::Renderable sphere{ mesh , m };
+
+			sphere.SetTransform(XMMatrixRotationY(math::ToRadians(0)) * XMMatrixTranslation(i * 2 * R, Y + R, j * 2 * R));
+			sphere.Init();
+			m_objects.push_back(sphere);
+		}
+	}
+}
+
 void SSAODemoApp::InitRenderables()
 {
 	render::Renderable ground{ *(service::Locator::GetResourceLoader()->LoadGPFMesh(GetRootDir().append(LR"(\3d-objects\rocks_dorama\rocks_composition.gpf)"))) };
@@ -173,41 +223,6 @@ void SSAODemoApp::InitRenderables()
 	soldier2.SetTransform(XMMatrixRotationY(math::ToRadians(135.f)) * XMMatrixTranslation(10.f, 0.35f, -10.f));
 	soldier2.Init();
 	m_objects.push_back(std::move(soldier2));
-
-
-	xtest::mesh::MeshMaterial m;
-
-	m.normalMap = L"" + GetRootDir().append(LR"(\3d-objects\tiles\tiles_norm.png)");
-	m.diffuseMap = L"" + GetRootDir().append(LR"(\3d-objects\tiles\tiles_color.png)");
-	m.glossMap = L"" + GetRootDir().append(LR"(\3d-objects\tiles\tiles_gloss.png)");
-
-	m.ambient = { 1.0f,1.0f,1.0f,1.0f };
-	m.diffuse = { 1.0f,1.0f,1.0f,1.0f };
-	m.specular = { 1.0f,1.0f,1.0f,1.0f };
-
-	int size = 9;
-	float R  = 1;
-	float Y  = 5;
-
-	xtest::mesh::MeshData plane = xtest::mesh::GeneratePlane((size+1)* R * 2,(size + 1)*R * 2,size,size);
-	render::Renderable planer{ plane , m };
-	planer.SetTransform(XMMatrixRotationY(math::ToRadians(0)) * XMMatrixTranslation(size*R, Y, size *  R));
-	planer.Init();
-
-	m_objects.push_back(planer);
-
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 9; j++) {
-			xtest::mesh::MeshData mesh = xtest::mesh::GenerateSphere(R, 30, 30);
-
-			render::Renderable sphere{ mesh , m };
-
-			sphere.SetTransform(XMMatrixRotationY(math::ToRadians(0)) * XMMatrixTranslation( i * 2 * R, Y + R , j * 2 * R));
-			sphere.Init();
-			m_objects.push_back(sphere);
-		}
-	}
-
 }
 
 void SSAODemoApp::OnResized()
@@ -644,8 +659,9 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusion()
 {
 	//Vedi SSAO.cpp 79-92 Qui 
-	BuildFrustumFarCorners(m_camera.GetYFov(), m_camera.GetZFarPlane());
-	BuildOffsetVectors();
+	m_SSAOMap.BuildFrustumFarCorners(m_camera.GetAspectRatio(),m_camera.GetYFov(), m_camera.GetZFarPlane());
+	//m_SSAOMap.BuildKernelVectors();
+
 	PerObjectCBAmbientOcclusion data;
 
 	XMMATRIX T(0.5f, 0.0f, 0.0f, 0.0f,
@@ -658,10 +674,14 @@ SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusio
 
 	XMStoreFloat4x4(&data.viewToTexSpace, XMMatrixTranspose(PT));
 
+	DirectX::XMFLOAT4 *m_frustumFarCorner = m_SSAOMap.GetFrustumFarCorner();
+
 	data.frustumCorners[0] = m_frustumFarCorner[0];
 	data.frustumCorners[1] = m_frustumFarCorner[1];
 	data.frustumCorners[2] = m_frustumFarCorner[2];
 	data.frustumCorners[3] = m_frustumFarCorner[3];
+
+	DirectX::XMFLOAT4 *m_offsets = m_SSAOMap.GetKernelVectors();
 
 	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++)
 	{
@@ -686,75 +706,4 @@ SSAODemoApp::PerObjectShadowMapData SSAODemoApp::ToPerObjectShadowMapData(const 
 
 	XMStoreFloat4x4(&data.WVP_lightSpace, XMMatrixTranspose(WVP));
 	return data;
-}
-
-void SSAODemoApp::BuildFrustumFarCorners(float fovy, float farZ)
-{
-	float aspect = m_camera.GetAspectRatio();
-	float halfHeight = farZ * tanf(0.5f * fovy);
-	float halfWidth = aspect * halfHeight;
-
-	m_frustumFarCorner[0] = DirectX::XMFLOAT4(-halfWidth, -halfHeight, farZ, 0.0f);
-	m_frustumFarCorner[1] = DirectX::XMFLOAT4(-halfWidth, +halfHeight, farZ, 0.0f);
-	m_frustumFarCorner[2] = DirectX::XMFLOAT4(+halfWidth, +halfHeight, farZ, 0.0f);
-	m_frustumFarCorner[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, farZ, 0.0f);
-
-}
-
-float RandomFloat(float min, float max)
-{
-	
-	float scale = rand() / (float)RAND_MAX; /* [0, 1.0] */
-	return min + scale * (max - min);      /* [min, max] */
-}
-
-float lerp(float a, float b, float f)
-{
-	return a + f * (b - a);
-}
-
-void SSAODemoApp::BuildOffsetVectors()
-{
-	/*srand((unsigned)std::time(NULL));
-	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++) 
-	{
-		m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), 0.0f);
-		//m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.05f, 255.0f), RandomFloat(0.05f, 255.0f), RandomFloat(0.05f, 255.0f), 255.0f);
-	}
-
-	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++)
-	{
-		//float s = RandomFloat(0.25f, 1.0f);
-		XMVECTOR v = 1 * XMVector4Normalize(XMLoadFloat4(&m_offsets[i]));
-		XMStoreFloat4(&m_offsets[i], v);
-	}*/
-
-
-	/*
-	We vary the x and y direction in tangent space between -1.0 and 1.0 and vary the z direction
-	of the samples between 0.0 and 1.0 (if we varied the z direction between -1.0 and 1.0 as well 
-	we'd have a sphere sample kernel). As the sample kernel will be oriented along the surface normal, 
-	the resulting sample vectors will all end up in the hemisphere.
-
-	Currently, all samples are randomly distributed in the sample kernel, but we'd rather place 
-	a larger weight on occlusions close to the actual fragment as to distribute the kernel samples
-	closer to the origin. We can do this with an accelerating interpolation function:
-	*/
-	for (unsigned int i = 0; i < SSAOData::SAMPLE_COUNT; ++i)
-	{
-		m_offsets[i] = DirectX::XMFLOAT4( 
-			(RandomFloat(0.0f, 1.0f) * 2.0f - 1.0f),
-			(RandomFloat(0.0f, 1.0f) * 2.0f - 1.0f),
-			RandomFloat(0.0f, 1.0f),
-				0.0f
-		);
-		
-		float s = RandomFloat(0.1f, 1.0f);
-		float scale = (float)i / SSAOData::SAMPLE_COUNT;
-		scale = lerp(0.1f, 1.0f, scale * scale);
-		s *= scale;
-		XMVECTOR v = s * XMVector4Normalize(XMLoadFloat4(&m_offsets[i]));
-
-		XMStoreFloat4(&m_offsets[i], v);
-	}
 }
