@@ -12,6 +12,7 @@
 #include <scene/bounding_sphere.h>
 #include <render/shading/shadow_map.h>
 #include <render/shading/ssao_map.h>
+#include <render/shading/blur_map.h>
 #include <render/shading/normal_depth_map.h>
 #include <render/shading/random_vec_map.h>
 

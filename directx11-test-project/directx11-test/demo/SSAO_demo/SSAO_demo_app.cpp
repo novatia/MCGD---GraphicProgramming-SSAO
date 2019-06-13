@@ -38,6 +38,7 @@ SSAODemoApp::SSAODemoApp(HINSTANCE instance,
 	, m_renderPass()
 	, m_shadowMap(2048)
 	, m_SSAOMap(windowSettings.width / 2, windowSettings.height / 2)//, 1, 128, 4, 2.0f, 3.0f)
+	, m_BlurMap(windowSettings.width / 2, windowSettings.height / 2)//, 1, 128, 4, 2.0f, 3.0f)
 	, m_normalDepthMap(windowSettings.width, windowSettings.height)
 	, m_randomVecMap(256, 256)
 	, m_sceneBoundingSphere({ 0.f, 0.f, 0.f }, 21.f)

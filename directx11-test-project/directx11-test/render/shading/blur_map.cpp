@@ -1,28 +1,9 @@
 #include "stdafx.h"
-#include "ssao_map.h"
+#include "blur_map.h"
 #include <service/locator.h>
 #include "DirectXMath.h"
 
 using namespace DirectX;
-
-xtest::render::shading::BlurMap::VertexInAmbientOcclusion::VertexInAmbientOcclusion(DirectX::XMFLOAT3 inPos, DirectX::XMFLOAT3 inToFarPlaneIndex, DirectX::XMFLOAT2 inUv)
-{
-	pos = inPos;
-	toFarPlaneIndex = inToFarPlaneIndex;
-	uv = inUv;
-}
-
-bool xtest::render::shading::BlurMap::VertexInAmbientOcclusion::operator==(const VertexInAmbientOcclusion & other) const
-{
-	return pos.x == other.pos.x
-		&& pos.y == other.pos.y
-		&& pos.z == other.pos.z
-		&& toFarPlaneIndex.x == other.toFarPlaneIndex.x
-		&& toFarPlaneIndex.y == other.toFarPlaneIndex.y
-		&& toFarPlaneIndex.z == other.toFarPlaneIndex.z
-		&& uv.x == other.uv.x
-		&& uv.y == other.uv.y;
-}
 
 xtest::render::shading::BlurMap::BlurMap(uint32 width, uint32 height)
 {
@@ -122,7 +103,6 @@ void xtest::render::shading::BlurMap::Init()
 	m_viewport.MinDepth = 0.0f;
 	m_viewport.MaxDepth = 1.0f;
 
-	BuildKernelVectors();
 }
 
 //void xtest::render::shading::SSAOMap::SetNoiseSize(uint32 noise_size)
@@ -162,7 +142,7 @@ D3D11_VIEWPORT xtest::render::shading::BlurMap::Viewport() const
 	return m_viewport;
 }
 
-void xtest::render::shading::SSAOMap::SetViewport(D3D11_VIEWPORT & view)
+void xtest::render::shading::BlurMap::SetViewport(D3D11_VIEWPORT & view)
 {
 	m_viewport = view;
 }
@@ -217,53 +197,7 @@ float xtest::render::shading::BlurMap::RandomFloat(float min, float max)
 	return min + scale * (max - min);      /* [min, max] */
 }
 
-void xtest::render::shading::BlurMap::BuildKernelVectors()
-{
-	/*srand((unsigned)std::time(NULL));
-	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++)
-	{
-		m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), 0.0f);
-		//m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.05f, 255.0f), RandomFloat(0.05f, 255.0f), RandomFloat(0.05f, 255.0f), 255.0f);
-	}
-
-	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++)
-	{
-		//float s = RandomFloat(0.25f, 1.0f);
-		XMVECTOR v = 1 * XMVector4Normalize(XMLoadFloat4(&m_offsets[i]));
-		XMStoreFloat4(&m_offsets[i], v);
-	}*/
-
-
-	/*
-	We vary the x and y direction in tangent space between -1.0 and 1.0 and vary the z direction
-	of the samples between 0.0 and 1.0 (if we varied the z direction between -1.0 and 1.0 as well
-	we'd have a sphere sample kernel). As the sample kernel will be oriented along the surface normal,
-	the resulting sample vectors will all end up in the hemisphere.
-
-	Currently, all samples are randomly distributed in the sample kernel, but we'd rather place
-	a larger weight on occlusions close to the actual fragment as to distribute the kernel samples
-	closer to the origin. We can do this with an accelerating interpolation function:
-	*/
-	for (unsigned int i = 0; i < SSAOData::SAMPLE_COUNT; ++i)
-	{
-		m_offsets[i] = DirectX::XMFLOAT4(
-			(SSAOMap::RandomFloat(0.0f, 1.0f) * 2.0f - 1.0f),
-			(SSAOMap::RandomFloat(0.0f, 1.0f) * 2.0f - 1.0f),
-			SSAOMap::RandomFloat(0.0f, 1.0f),
-			0.0f
-		);
-
-		float s = SSAOMap::RandomFloat(0.1f, 1.0f);
-		float scale = (float)i / SSAOData::SAMPLE_COUNT;
-		scale = SSAOMap::lerp(0.1f, 1.0f, scale * scale);
-		s *= scale;
-		DirectX::XMVECTOR v = s * XMVector4Normalize(DirectX::XMLoadFloat4(&m_offsets[i]));
-
-		DirectX::XMStoreFloat4(&m_offsets[i], v);
-	}
-}
-
-void xtest::render::shading::SSAOMap::BuildFrustumFarCorners(float aspect, float fovy, float farZ)
+void xtest::render::shading::BlurMap::BuildFrustumFarCorners(float aspect, float fovy, float farZ)
 {
 	float halfHeight = farZ * tanf(0.5f * fovy);
 	float halfWidth = aspect * halfHeight;
@@ -280,21 +214,12 @@ DirectX::XMFLOAT4* xtest::render::shading::BlurMap::GetFrustumFarCorner()
 	return m_frustumFarCorner;
 }
 
-DirectX::XMFLOAT4* xtest::render::shading::BlurMap::GetKernelVectors()
-{
-	return m_offsets;
-}
-
-float  xtest::render::shading::BlurMap::lerp(float a, float b, float f)
-{
-	return a + f * (b - a);
-}
 
 void xtest::render::shading::BlurMap::Bind()
 {
 	XTEST_ASSERT(m_d3dVertexBuffer && m_d3dIndexBuffer, L"uninitialized renderable");
 
-	UINT stride = sizeof(BlurMap::VertexInAmbientOcclusion);
+	UINT stride = sizeof(xtest::render::shading::SSAOData::VertexInAmbientOcclusion);
 	UINT offset = 0;
 	service::Locator::GetD3DContext()->IASetVertexBuffers(0, 1, m_d3dVertexBuffer.GetAddressOf(), &stride, &offset);
 	service::Locator::GetD3DContext()->IASetIndexBuffer(m_d3dIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
@@ -305,23 +230,3 @@ void xtest::render::shading::BlurMap::Draw()
 	Bind();
 	service::Locator::GetD3DContext()->DrawIndexed(UINT(m_vs_data.indices.size()), 0, 0);
 }
-
-//uint32 xtest::render::shading::SSAOMap::NoiseSize() const
-//{
-//	return m_noise_size;
-//}
-//
-//uint32 xtest::render::shading::SSAOMap::KernelSize() const
-//{
-//	return m_kernel_size;
-//}
-//
-//float xtest::render::shading::SSAOMap::Radius() const
-//{
-//	return m_radius;
-//}
-//
-//float xtest::render::shading::SSAOMap::Power() const
-//{
-//	return m_power;
-//}
