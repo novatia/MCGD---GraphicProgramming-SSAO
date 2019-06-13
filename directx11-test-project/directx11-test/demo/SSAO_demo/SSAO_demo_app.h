@@ -158,6 +158,7 @@ namespace xtest {
 
 			render::shading::ShadowMap m_shadowMap;
 			render::shading::SSAOMap m_SSAOMap;
+			render::shading::BlurMap m_BlurMap;
 			render::shading::NormalDepthMap m_normalDepthMap;
 			render::shading::RandomVectorMap m_randomVecMap;
 			scene::BoundingSphere m_sceneBoundingSphere;

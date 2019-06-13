@@ -1,5 +1,5 @@
 
-struct VertexOut
+struct VertexOutAmbientOcclusion
 {
 	float4 posH : SV_POSITION;
 	float3 toFarPlane : TEXCOORD0;
@@ -29,7 +29,7 @@ Texture2D SSAOMap : register (t13);
 SamplerState samNormalDepth : register(s1);
 SamplerState SSAOSampler : register(s4);
 
-float4 main(VertexOut pin) : SV_TARGET
+float4 main(VertexOutAmbientOcclusion pin) : SV_TARGET
 {
 	float weights[11] = { 0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f };
  static const int blurRadius = 5;

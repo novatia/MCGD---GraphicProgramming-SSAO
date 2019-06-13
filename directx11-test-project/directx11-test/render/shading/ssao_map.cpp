@@ -65,9 +65,7 @@ void xtest::render::shading::SSAOMap::Init()
 
 	XTEST_D3D_CHECK(d3dDevice->CreateRenderTargetView(texture.Get(), 0, &m_renderTargetView));
 
-
 	//BIND VERTEX INPUT
-	 
 	SSAOData::VertexInAmbientOcclusion *v1 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 1.0f));
 	SSAOData::VertexInAmbientOcclusion *v2 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(-1.0f, +1.0f, 0.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 0.0f));
 	SSAOData::VertexInAmbientOcclusion *v3 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(+1.0f, +1.0f, 0.0f), DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 0.0f));
@@ -147,15 +145,16 @@ void xtest::render::shading::SSAOMap::Init()
 
 ID3D11ShaderResourceView * xtest::render::shading::SSAOMap::AsShaderView()
 {
-	XTEST_ASSERT(m_shaderView, L"shadow map uninitialized");
+	XTEST_ASSERT(m_shaderView, L"SSAO map uninitialized");
 	return m_shaderView.Get();
 }
 
 ID3D11RenderTargetView * xtest::render::shading::SSAOMap::AsRenderTargetView()
 {
-	XTEST_ASSERT(m_renderTargetView, L"shadow map uninitialized");
+	XTEST_ASSERT(m_renderTargetView, L"SSAO map uninitialized");
 	return m_renderTargetView.Get();
 }
+
 
 D3D11_VIEWPORT xtest::render::shading::SSAOMap::Viewport() const
 {
@@ -304,6 +303,11 @@ void xtest::render::shading::SSAOMap::Draw()
 {
 	Bind();
 	service::Locator::GetD3DContext()->DrawIndexed(UINT(m_vs_data.indices.size()), 0, 0);
+}
+
+void xtest::render::shading::SSAOMap::Release()
+{
+	m_renderTargetView->Release();
 }
 
 //uint32 xtest::render::shading::SSAOMap::NoiseSize() const
