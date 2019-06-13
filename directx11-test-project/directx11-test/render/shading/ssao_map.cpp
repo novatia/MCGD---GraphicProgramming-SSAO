@@ -117,8 +117,8 @@ void xtest::render::shading::SSAOMap::Init()
 
 	m_viewport.TopLeftX = 0.0f;
 	m_viewport.TopLeftY = 0.0f;
-	m_viewport.Width = m_width;
-	m_viewport.Height = m_height;
+	m_viewport.Width = float(m_width);
+	m_viewport.Height = float(m_height);
 	m_viewport.MinDepth = 0.0f;
 	m_viewport.MaxDepth = 1.0f;
 
@@ -303,7 +303,7 @@ void xtest::render::shading::SSAOMap::Bind()
 void xtest::render::shading::SSAOMap::Draw()
 {
 	Bind();
-	service::Locator::GetD3DContext()->DrawIndexed(m_vs_data.indices.size(), 0, 0);
+	service::Locator::GetD3DContext()->DrawIndexed(UINT(m_vs_data.indices.size()), 0, 0);
 }
 
 //uint32 xtest::render::shading::SSAOMap::NoiseSize() const
