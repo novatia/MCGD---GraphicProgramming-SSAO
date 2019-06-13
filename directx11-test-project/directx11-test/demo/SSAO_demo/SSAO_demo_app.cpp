@@ -165,19 +165,23 @@ void SSAODemoApp::InitRenderTechnique()
 void SSAODemoApp::InitTestRenderables()
 {
 
-	int size = 20;
+	int size = 11;
 	float R = 1;
 	float Y = 5;
 
 	xtest::mesh::MeshMaterial m;
 
-	m.normalMap  = L"" + GetRootDir().append(LR"(\3d-objects\tiles\tiles_norm.png)");
-	m.diffuseMap = L"" + GetRootDir().append(LR"(\3d-objects\tiles\tiles_color.png)");
-	m.glossMap   = L"" + GetRootDir().append(LR"(\3d-objects\tiles\tiles_gloss.png)");
-	
-	m.ambient = { 1.0f,1.0f,1.0f,1.0f };
-	m.diffuse = { 1.0f,1.0f,1.0f,1.0f };
-	m.specular = { 1.0f,1.0f,1.0f,1.0f };
+	m.normalMap  = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_norm.png)");
+	m.diffuseMap = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_color.png)");
+	m.glossMap   = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_gloss.png)");
+
+	//m.normalMap  = L"" + GetRootDir().append(LR"(\3d-objects\neutro\neutro_norm.png)");
+	//m.diffuseMap = L"" + GetRootDir().append(LR"(\3d-objects\neutro\neutro_color.png)");
+	//m.glossMap   = L"" + GetRootDir().append(LR"(\3d-objects\neutro\neutro_gloss.png)");
+
+	m.ambient = { 0.2f,0.2f,0.2f,0.2f };
+	m.diffuse = { 0.4f,0.4f,0.4f,0.4f };
+	m.specular = { 0.2f,0.2f,0.2f,0.2f };
 
 	xtest::mesh::MeshData plane = xtest::mesh::GeneratePlane((size + 1)* R * 2, (size + 1)*R * 2, size, size);
 	render::Renderable planer{ plane , m };
@@ -192,13 +196,13 @@ void SSAODemoApp::InitTestRenderables()
 
 			xtest::mesh::MeshMaterial m1;
 
-			m1.normalMap  =  GetRootDir().append(LR"(\3d-objects\fabric\fabric_norm.png)");
-			m1.diffuseMap =  GetRootDir().append(LR"(\3d-objects\fabric\fabric_color.png)");
-			m1.glossMap   =  GetRootDir().append(LR"(\3d-objects\fabric\fabric_gloss.png)");
+			m1.normalMap  =  GetRootDir().append(LR"(\3d-objects\sci-fi\sci_fi_norm.png)");
+			m1.diffuseMap =  GetRootDir().append(LR"(\3d-objects\sci-fi\sci_fi_color.png)");
+			m1.glossMap   =  GetRootDir().append(LR"(\3d-objects\sci-fi\sci_fi_gloss.png)");
 
 			m1.ambient  = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), 1.0f };
-			m1.diffuse  = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), 1.0f };
-			m1.specular = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(5.0f,1.0f), 1.0f };
+			m1.diffuse  = { SSAOMap::RandomFloat(0.50f,1.0f), SSAOMap::RandomFloat(0.50f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), 1.0f };
+			m1.specular = { SSAOMap::RandomFloat(0.50f,1.0f), SSAOMap::RandomFloat(0.50f,1.0f), SSAOMap::RandomFloat(5.0f,1.0f), 1.0f };
 
 			render::Renderable sphere{ mesh , m1};
 
