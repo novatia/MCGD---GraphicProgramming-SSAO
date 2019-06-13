@@ -34,9 +34,10 @@ SSAODemoApp::SSAODemoApp(HINSTANCE instance,
 	, m_normalDepthPass()
 	, m_shadowPass()
 	, m_SSAOPass()
+	, m_SSAOBlurPass()
 	, m_renderPass()
 	, m_shadowMap(2048)
-	, m_SSAOMap(windowSettings.width/2, windowSettings.height/2)//, 1, 128, 4, 2.0f, 3.0f)
+	, m_SSAOMap(windowSettings.width / 2, windowSettings.height / 2)//, 1, 128, 4, 2.0f, 3.0f)
 	, m_normalDepthMap(windowSettings.width, windowSettings.height)
 	, m_randomVecMap(256, 256)
 	, m_sceneBoundingSphere({ 0.f, 0.f, 0.f }, 21.f)
@@ -115,7 +116,7 @@ void SSAODemoApp::InitRenderTechnique()
 	}
 
 	m_randomVecMap.Init();
-	
+
 	//// SSAO pass
 	{
 		//m_SSAOMap.SetNoiseSize(4);
@@ -126,7 +127,7 @@ void SSAODemoApp::InitRenderTechnique()
 
 		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_map_VS.cso")));
 		vertexShader->SetVertexInput(std::make_shared<VertexInputAmbientOcclusion>());
-		vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
+		//vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
 		vertexShader->AddConstantBuffer(CBufferFrequency::per_object_ambient_occlusion, std::make_unique<CBuffer<PerObjectCBAmbientOcclusion>>());
 
 		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_map_PS.cso")));
@@ -140,6 +141,25 @@ void SSAODemoApp::InitRenderTechnique()
 		m_SSAOPass.SetVertexShader(vertexShader);
 		m_SSAOPass.SetPixelShader(pixelShader);
 		m_SSAOPass.Init();
+	}
+
+	//blur pass
+	{
+		//m_SSAOMap.Init();
+
+		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_map_VS.cso")));
+		vertexShader->SetVertexInput(std::make_shared<VertexInputAmbientOcclusion>());
+		vertexShader->AddConstantBuffer(CBufferFrequency::per_object_ambient_occlusion, std::make_unique<CBuffer<PerObjectCBAmbientOcclusion>>());
+
+		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_blur_PS.cso")));
+		pixelShader->AddConstantBuffer(CBufferFrequency::per_frame_blur, std::make_unique<CBuffer<BlurCBuffer>>());
+		pixelShader->AddSampler(SamplerUsage::normal_depth_map, std::make_shared<NormalDepthSampler>());
+		pixelShader->AddSampler(SamplerUsage::ssao_map, std::make_shared<SSAOMapSampler>());
+
+		m_SSAOBlurPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_SSAOMap.Viewport(), std::make_shared<SolidCullBackRS>(), m_SSAOMap.AsRenderTargetView(), nullptr)); // nullptr
+		m_SSAOBlurPass.SetVertexShader(vertexShader);
+		m_SSAOBlurPass.SetPixelShader(pixelShader);
+		m_SSAOBlurPass.Init();
 	}
 
 	// render pass
@@ -171,9 +191,9 @@ void SSAODemoApp::InitTestRenderables()
 
 	xtest::mesh::MeshMaterial m;
 
-	m.normalMap  = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_norm.png)");
+	m.normalMap = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_norm.png)");
 	m.diffuseMap = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_color.png)");
-	m.glossMap   = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_gloss.png)");
+	m.glossMap = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_gloss.png)");
 
 	//m.normalMap  = L"" + GetRootDir().append(LR"(\3d-objects\neutro\neutro_norm.png)");
 	//m.diffuseMap = L"" + GetRootDir().append(LR"(\3d-objects\neutro\neutro_color.png)");
@@ -196,15 +216,15 @@ void SSAODemoApp::InitTestRenderables()
 
 			xtest::mesh::MeshMaterial m1;
 
-			m1.normalMap  =  GetRootDir().append(LR"(\3d-objects\sci-fi\sci_fi_norm.png)");
-			m1.diffuseMap =  GetRootDir().append(LR"(\3d-objects\sci-fi\sci_fi_color.png)");
-			m1.glossMap   =  GetRootDir().append(LR"(\3d-objects\sci-fi\sci_fi_gloss.png)");
+			m1.normalMap = GetRootDir().append(LR"(\3d-objects\sci-fi\sci_fi_norm.png)");
+			m1.diffuseMap = GetRootDir().append(LR"(\3d-objects\sci-fi\sci_fi_color.png)");
+			m1.glossMap = GetRootDir().append(LR"(\3d-objects\sci-fi\sci_fi_gloss.png)");
 
-			m1.ambient  = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), 1.0f };
-			m1.diffuse  = { SSAOMap::RandomFloat(0.50f,1.0f), SSAOMap::RandomFloat(0.50f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), 1.0f };
+			m1.ambient = { SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), 1.0f };
+			m1.diffuse = { SSAOMap::RandomFloat(0.50f,1.0f), SSAOMap::RandomFloat(0.50f,1.0f), SSAOMap::RandomFloat(0.20f,1.0f), 1.0f };
 			m1.specular = { SSAOMap::RandomFloat(0.50f,1.0f), SSAOMap::RandomFloat(0.50f,1.0f), SSAOMap::RandomFloat(5.0f,1.0f), 1.0f };
 
-			render::Renderable sphere{ mesh , m1};
+			render::Renderable sphere{ mesh , m1 };
 
 			sphere.SetTransform(XMMatrixRotationY(math::ToRadians(0)) * XMMatrixTranslation(i * 2 * R, Y + R, j * 2 * R));
 			sphere.Init();
@@ -339,7 +359,7 @@ void SSAODemoApp::OnKeyStatusChange(input::Key key, const input::KeyStatus& stat
 		m_SSAOMap.m_occlusionRadius += 0.01f;
 		increaseOcclusionRadius = true;
 	}
-	else 
+	else
 	{
 		increaseOcclusionRadius = false;
 	}
@@ -402,7 +422,7 @@ void SSAODemoApp::OnKeyStatusChange(input::Key key, const input::KeyStatus& stat
 		m_SSAOMap.m_surfaceEpsilon += 0.0001f;
 		increaseSurfaceEpsilon = true;
 	}
-	else 
+	else
 	{
 		increaseSurfaceEpsilon = false;
 	}
@@ -469,7 +489,7 @@ void SSAODemoApp::UpdateScene(float deltaSeconds)
 	{
 		m_SSAOMap.m_occlusionRadius += 0.01f;
 	}
-	
+
 
 	if (decreaseOcclusionRadius)
 	{
@@ -480,13 +500,13 @@ void SSAODemoApp::UpdateScene(float deltaSeconds)
 	{
 		m_SSAOMap.m_occlusionFadeStart += 0.01f;
 	}
-	
+
 
 	if (decreaseOcclusionFadeStart)
 	{
 		m_SSAOMap.m_occlusionFadeStart -= 0.01f;
 	}
-	
+
 
 	if (increaseFadeEnd)
 	{
@@ -497,7 +517,7 @@ void SSAODemoApp::UpdateScene(float deltaSeconds)
 	{
 		m_SSAOMap.m_occlusionFadeEnd -= 0.01f;
 	}
-	
+
 
 	if (increaseSurfaceEpsilon)
 	{
@@ -552,7 +572,7 @@ void SSAODemoApp::RenderScene()
 	}
 	m_d3dAnnotation->EndEvent();
 
-	
+
 	m_d3dAnnotation->BeginEvent(L"normal_depth-map");
 	m_normalDepthPass.Bind();
 	m_normalDepthPass.GetState()->ClearDepthOnly();
@@ -571,27 +591,54 @@ void SSAODemoApp::RenderScene()
 	m_d3dAnnotation->EndEvent();
 
 	{
-	m_d3dAnnotation->BeginEvent(L"ambient-occlusion-pass");
-	m_SSAOPass.Bind();
+		m_d3dAnnotation->BeginEvent(L"ambient-occlusion-pass");
+		m_SSAOPass.Bind();
 
-	//m_SSAOPass.GetState()->ClearDepthOnly();
-	m_SSAOPass.GetState()->ClearRenderTarget(DirectX::Colors::Black);
+		//m_SSAOPass.GetState()->ClearDepthOnly();
+		m_SSAOPass.GetState()->ClearRenderTarget(DirectX::Colors::Black);
 
-	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
-	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, m_randomVecMap.AsShaderView());
+		m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
+		m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, m_randomVecMap.AsShaderView());
 
-	//attach CB
-	PerObjectCBAmbientOcclusion data1 = ToPerObjectAmbientOcclusion();
-	m_SSAOPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data1);
-	m_SSAOPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data1);
-	// compute MAP
-	m_SSAOMap.Draw();
+		//attach CB
+		PerObjectCBAmbientOcclusion data1 = ToPerObjectAmbientOcclusion();
+		m_SSAOPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data1);
+		m_SSAOPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data1);
+		// compute MAP
+		m_SSAOMap.Draw();
 	}
-	
+
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, nullptr);
 	m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, nullptr); // randomVecMap?
 	m_d3dAnnotation->EndEvent();
-	
+
+	//****************************************
+	// Blur Pass
+	{
+		m_d3dAnnotation->BeginEvent(L"blur-pass");
+		m_SSAOBlurPass.Bind();
+
+		//m_SSAOPass.GetState()->ClearDepthOnly();
+		//m_SSAOBlurPass.GetState()->ClearRenderTarget(DirectX::Colors::Black);
+
+		m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
+		m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, m_SSAOMap.AsShaderView());
+
+		//attach CB
+		BlurCBuffer data1 = ToPerFrameBlur();
+		PerObjectCBAmbientOcclusion data2 = ToPerObjectAmbientOcclusion();
+		m_SSAOBlurPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_object_ambient_occlusion)->UpdateBuffer(data2);
+		m_SSAOBlurPass.GetPixelShader()->GetConstantBuffer(CBufferFrequency::per_frame_blur)->UpdateBuffer(data1);
+		// compute MAP
+		m_SSAOMap.Draw();
+	}
+
+	m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, nullptr);
+	m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, nullptr); // randomVecMap?
+	m_d3dAnnotation->EndEvent();
+
+
+	//****************************************
 	m_d3dAnnotation->BeginEvent(L"render-scene");
 	m_renderPass.Bind();
 	m_renderPass.GetState()->ClearDepthOnly();
@@ -617,7 +664,7 @@ void SSAODemoApp::RenderScene()
 	m_renderPass.GetPixelShader()->BindTexture(TextureUsage::shadow_map, nullptr); // explicit unbind the shadow map to suppress warning
 	m_renderPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, nullptr);
 	m_d3dAnnotation->EndEvent();
-	
+
 
 	XTEST_D3D_CHECK(m_swapChain->Present(0, 0));
 
@@ -663,12 +710,12 @@ SSAODemoApp::PerFrameDataNormalDepth xtest::demo::SSAODemoApp::ToPerFrameData(co
 	*/
 	PerFrameDataNormalDepth data;
 	XMMATRIX W = XMLoadFloat4x4(&renderable.GetTransform());
-	XMMATRIX W_InverseTranspose = XMMatrixTranspose( XMMatrixInverse(nullptr, W));
+	XMMATRIX W_InverseTranspose = XMMatrixTranspose(XMMatrixInverse(nullptr, W));
 
 	//XMMATRIX T = XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
 	XMMATRIX V = m_camera.GetViewMatrix();
 	XMMATRIX P = m_camera.GetProjectionMatrix();
-	
+
 	XMMATRIX WV = W * V;
 	//XMMATRIX W_InverseTransposeV = W_InverseTranspose * V;  // IMMAGINE NORMALE BLU E MARRONE
 	XMMATRIX W_InverseTransposeV = W_InverseTranspose; //IMMAGINE NORMALE VERDE
@@ -680,7 +727,7 @@ SSAODemoApp::PerFrameDataNormalDepth xtest::demo::SSAODemoApp::ToPerFrameData(co
 	/*XMMATRIX T(0.5f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.5f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
-		0.5f, 0.5f, 0.0f, 1.0f); //TENTATIVO 
+		0.5f, 0.5f, 0.0f, 1.0f); //TENTATIVO
 	*/
 	XMStoreFloat4x4(&data.worldView, XMMatrixTranspose(WV));
 	XMStoreFloat4x4(&data.worldInvTransposeView, XMMatrixTranspose(W_InverseTransposeV));
@@ -698,12 +745,12 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 	XMMATRIX V = m_camera.GetViewMatrix();
 	XMMATRIX P = m_camera.GetProjectionMatrix();
 	XMMATRIX T = XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
-	XMMATRIX W_inverseTraspose = XMMatrixTranspose( XMMatrixInverse(nullptr, W) );
+	XMMATRIX W_inverseTraspose = XMMatrixTranspose(XMMatrixInverse(nullptr, W));
 	XMMATRIX WVP = W * V * P;
 	XMMATRIX WVPT_shadowMap = W * m_shadowMap.VPTMatrix();
 
 	//[-1,1]->[0,1]
-	static const XMMATRIX T1 (
+	static const XMMATRIX T1(
 		0.5f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.5f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
@@ -728,7 +775,7 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusion()
 {
 	//Vedi SSAO.cpp 79-92 Qui 
-	m_SSAOMap.BuildFrustumFarCorners(m_camera.GetAspectRatio(),m_camera.GetYFov(), m_camera.GetZFarPlane());
+	m_SSAOMap.BuildFrustumFarCorners(m_camera.GetAspectRatio(), m_camera.GetYFov(), m_camera.GetZFarPlane());
 	//m_SSAOMap.BuildKernelVectors();
 
 	PerObjectCBAmbientOcclusion data;
@@ -739,7 +786,7 @@ SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusio
 		0.5f, 0.5f, 0.0f, 1.0f);//XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
 
 	XMMATRIX P = m_camera.GetProjectionMatrix();
-	XMMATRIX PT = XMMatrixMultiply(P,T);
+	XMMATRIX PT = XMMatrixMultiply(P, T);
 
 	XMStoreFloat4x4(&data.viewToTexSpace, XMMatrixTranspose(PT));
 
@@ -774,5 +821,16 @@ SSAODemoApp::PerObjectShadowMapData SSAODemoApp::ToPerObjectShadowMapData(const 
 	XMMATRIX WVP = W * m_shadowMap.LightViewMatrix() * m_shadowMap.LightProjMatrix();
 
 	XMStoreFloat4x4(&data.WVP_lightSpace, XMMatrixTranspose(WVP));
+	return data;
+}
+
+
+
+SSAODemoApp::BlurCBuffer SSAODemoApp::ToPerFrameBlur()
+{
+	BlurCBuffer data;
+	data.texelWitdth = 1.0f / m_SSAOMap.Viewport().Width;
+	data.texelHeight = 1.0f / m_SSAOMap.Viewport().Height;
+	data.horizontalBlur = false;
 	return data;
 }

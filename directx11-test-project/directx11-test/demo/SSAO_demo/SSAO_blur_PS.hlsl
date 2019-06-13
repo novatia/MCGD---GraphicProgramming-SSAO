@@ -2,22 +2,23 @@
 struct VertexOut
 {
 	float4 posH : SV_POSITION;
-	float2 uv : TEXCOORD;
+	float3 toFarPlane : TEXCOORD0;
+	float2 uv : TEXCOORD1;
 };
 
-cbuffer BlurCBufferPerFrame : register(b4)
+cbuffer BlurCBufferPerFrame : register(b5)
 {
 	float texelWidth;
 	float texelHeight;
 	bool horizontalBlur;
 };
 
-cbuffer BlurCBufferSettings : register(b5)
+cbuffer BlurCBufferSettings
 {
 	float weights[11] = { 0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f };
 };
 
-cbuffer BlurCBufferFixed : register(b6)
+cbuffer BlurCBufferFixed
 {
 	static const int blurRadius = 5;
 };
@@ -54,7 +55,7 @@ float4 main(VertexOut pin) : SV_TARGET
 			abs(neighborNormalDepth.a - centerNormalDepth.a) <= 0.2f)
 		{
 			float weight = weights[i + blurRadius];
-			color+=weight*SSAOMap.SampleLevel(SSAOSampler, tex, 0.0);
+			color += weight * SSAOMap.SampleLevel(SSAOSampler, tex, 0.0);
 			totalWeight += weight;
 		}
 

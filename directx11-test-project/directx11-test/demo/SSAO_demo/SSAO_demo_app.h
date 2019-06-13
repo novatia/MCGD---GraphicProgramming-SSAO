@@ -96,14 +96,17 @@ namespace xtest {
 				DirectX::XMFLOAT4 frustumCorners[4];
 
 				float occlusionRadius;
-				float occlusionFadeStart ;
-				float occlusionFadeEnd ;
-				float surfaceEpsilon ;
+				float occlusionFadeStart;
+				float occlusionFadeEnd;
+				float surfaceEpsilon;
 			};
 
 			struct BlurCBuffer // new struct
 			{
-				unsigned int noiseTextureDimension;
+				float texelWitdth;
+				float texelHeight;
+				uint32 horizontalBlur;
+				float pad;
 			};
 
 
@@ -136,6 +139,8 @@ namespace xtest {
 			PerFrameDataNormalDepth ToPerFrameData(const render::Renderable& renderable);
 
 			PerObjectShadowMapData ToPerObjectShadowMapData(const render::Renderable& renderable, const std::string& meshName);
+
+			BlurCBuffer ToPerFrameBlur();
 
 			DirectionalLight m_dirKeyLight;
 			DirectionalLight m_dirFillLight;
