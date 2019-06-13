@@ -153,8 +153,8 @@ void SSAODemoApp::InitRenderTechnique()
 
 		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_blur_PS.cso")));
 		pixelShader->AddConstantBuffer(CBufferFrequency::per_frame_blur, std::make_unique<CBuffer<BlurCBuffer>>());
-		pixelShader->AddSampler(SamplerUsage::normal_depth_map, std::make_shared<NormalDepthSampler>());
-		pixelShader->AddSampler(SamplerUsage::ssao_map, std::make_shared<SSAOMapSampler>());
+		//pixelShader->AddSampler(SamplerUsage::normal_depth_map, std::make_shared<NormalDepthSampler>());
+		pixelShader->AddSampler(SamplerUsage::ssao_blur, std::make_shared<SSAOBlurSampler>());
 
 		m_SSAOBlurPass.SetState(std::make_shared<RenderPassState>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, m_SSAOMap.Viewport(), std::make_shared<SolidCullBackRS>(), m_SSAOMap.AsRenderTargetView(), nullptr)); // nullptr
 		m_SSAOBlurPass.SetVertexShader(vertexShader);

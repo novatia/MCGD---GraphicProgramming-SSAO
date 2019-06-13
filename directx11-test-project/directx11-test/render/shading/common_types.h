@@ -52,6 +52,7 @@ namespace xtest {
 				normal_depth_map = 1,
 				random_vec = 2,
 				ssao_map = 3,
+				ssao_blur = 4,
 				shadow_map = 10,
 				unknown
 			};

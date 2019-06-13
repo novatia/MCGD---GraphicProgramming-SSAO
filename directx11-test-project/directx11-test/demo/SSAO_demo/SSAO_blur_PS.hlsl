@@ -25,8 +25,8 @@ cbuffer BlurCBufferFixed
 
 Texture2D SSAOMap : register (t13);
 Texture2D normalDepthMap : register(t11);
-SamplerState samNormalDepth : register(s1);
-SamplerState SSAOSampler : register(s3);
+//SamplerState samNormalDepth : register(s4);
+SamplerState SSAOSampler : register(s4);
 
 float4 main(VertexOut pin) : SV_TARGET
 {
@@ -41,7 +41,7 @@ float4 main(VertexOut pin) : SV_TARGET
 	}
 	float4 color = weights[5] * SSAOMap.SampleLevel(SSAOSampler, pin.uv, 0.0);
 	float totalWeight = weights[5];
-	float4 centerNormalDepth = normalDepthMap.SampleLevel(samNormalDepth, pin.uv, 0.0f);
+	float4 centerNormalDepth = normalDepthMap.SampleLevel(SSAOSampler, pin.uv, 0.0f);
 	int i = 0;
 	for (i = -blurRadius; i <= blurRadius; i++)
 	{
@@ -50,7 +50,7 @@ float4 main(VertexOut pin) : SV_TARGET
 			continue;
 		}
 		float2 tex = pin.uv + i * texOffset;
-		float4 neighborNormalDepth = normalDepthMap.SampleLevel(samNormalDepth, tex, 0.0f);
+		float4 neighborNormalDepth = normalDepthMap.SampleLevel(SSAOSampler, tex, 0.0f);
 		if (dot(neighborNormalDepth.xyz, centerNormalDepth.xyz) >= 0.8f &&
 			abs(neighborNormalDepth.a - centerNormalDepth.a) <= 0.2f)
 		{
