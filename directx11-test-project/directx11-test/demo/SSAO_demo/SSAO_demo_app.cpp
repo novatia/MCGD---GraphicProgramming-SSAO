@@ -481,7 +481,7 @@ void SSAODemoApp::RenderScene()
 	{
 		for (const std::string& meshName : renderable.GetMeshNames())
 		{
-			PerFrameDataNormalDepth data = ToPerFrameData(renderable, meshName);
+			PerFrameDataNormalDepth data = ToPerFrameData(renderable);
 			m_normalDepthPass.GetVertexShader()->GetConstantBuffer(CBufferFrequency::per_frame_normal_depth)->UpdateBuffer(data);
 			renderable.Draw(meshName);
 		}
@@ -572,7 +572,7 @@ void SSAODemoApp::RenderScene()
 
 }
 
-SSAODemoApp::PerFrameDataNormalDepth xtest::demo::SSAODemoApp::ToPerFrameData(const render::Renderable & renderable, const std::string & meshName)
+SSAODemoApp::PerFrameDataNormalDepth xtest::demo::SSAODemoApp::ToPerFrameData(const render::Renderable & renderable)
 {
 	/*
 	Vedi MeshViewDemo.cpp 584-594
@@ -743,8 +743,8 @@ void SSAODemoApp::BuildOffsetVectors()
 	for (unsigned int i = 0; i < SSAOData::SAMPLE_COUNT; ++i)
 	{
 		m_offsets[i] = DirectX::XMFLOAT4( 
-			(RandomFloat(0.0f, 1.0f) * 2.0 - 1.0),
-			(RandomFloat(0.0f, 1.0f) * 2.0 - 1.0),
+			(RandomFloat(0.0f, 1.0f) * 2.0f - 1.0f),
+			(RandomFloat(0.0f, 1.0f) * 2.0f - 1.0f),
 			RandomFloat(0.0f, 1.0f),
 				0.0f
 		);
