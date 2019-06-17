@@ -1,22 +1,23 @@
 # MCGD---GraphicProgramming-SSAO
 
 ![alt text](https://github.com/novatia/MCGD---GraphicProgramming-SSAO/blob/master/image.JPG)
+![alt text](https://github.com/novatia/MCGD---GraphicProgramming-SSAO/blob/master/image2.JPG)
 
 <h1>SSAO Map With directX11</h1>
 </br>
-U - Increase occlusion radius</br>
-Y - Decrease occlusion radius</br>
+<b>U</b> - Increase occlusion radius</br>
+<b>Y</b> - Decrease occlusion radius</br>
 </br>
-J - Increase occlusion fade start</br>
-H - Decrease occlusion fade start</br>
+<b>J</b> - Increase occlusion fade start</br>
+<b>H</b> - Decrease occlusion fade start</br>
 </br>
-M - Increase occlusion fade end</br>
-N - Decrease occlusion fade end</br>
+<b>M</b> - Increase occlusion fade end</br>
+<b>N</b> - Decrease occlusion fade end</br>
 </br>
-P - Increase effect exponent (drammatic effect)</br>
-O - Decrease effect exponent (drammatic effect)</br>
+<b>P</b> - Increase effect exponent (drammatic effect)</br>
+<b>O</b> - Decrease effect exponent (drammatic effect)</br>
 </br>
-F2 - Toggle SSAO map calculation</br>
+<b>F2</b> - Toggle SSAO map calculation</br>
 
 If you want to test effect on a test scene, decomment 	</br></br>
 //InitTestRenderables();</br>
