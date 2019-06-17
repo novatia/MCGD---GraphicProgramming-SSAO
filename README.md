@@ -1,6 +1,6 @@
 # MCGD---GraphicProgramming-SSAO
 
-![alt text](https://raw.githubusercontent.com/novatia/MCGD---GraphicProgramming-SSAO/image.JPG)
+![alt text](https://github.com/novatia/MCGD---GraphicProgramming-SSAO/blob/master/image.JPG)
 
 SSAO Map With directX11
 
