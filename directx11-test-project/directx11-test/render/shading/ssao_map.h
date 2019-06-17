@@ -31,15 +31,7 @@ namespace xtest {
 			class SSAOMap
 			{
 			public:
-				/**
-				 * @param width Resolution for SSAO map
-				 * @param height Resolution for SSAO map
-				 * @param sample_factor Divide width and height by this factor
-				 * @param kernel_size how many sample take in the hemisphere
-				 * @param noise_size 
-				 * @param radius sphere radius
-				 * @param how strong is SSAO power
-				 */
+			
 				explicit SSAOMap(
 					uint32 width, 
 					uint32 height
