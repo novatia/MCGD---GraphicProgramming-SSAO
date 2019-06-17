@@ -81,7 +81,7 @@ namespace xtest {
 				float m_occlusionFadeStart = 0.2f;
 				float m_occlusionFadeEnd = 2.0f;
 				float m_surfaceEpsilon = 0.0005f;
-				float m_multiplier = 4.0f;
+				float m_multiplier = 28.0f;
 
 			private:
 				SSAOData m_vs_data;

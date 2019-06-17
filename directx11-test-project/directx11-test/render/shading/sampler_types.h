@@ -130,9 +130,12 @@ namespace shading {
 			D3D11_SAMPLER_DESC samplerDesc;
 			ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
 			samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-			samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-			samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-			samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+			//samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+			//samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;z
+			//samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+			samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 			samplerDesc.ComparisonFunc = D3D11_COMPARISON_EQUAL;
 
 			XTEST_D3D_CHECK(service::Locator::GetD3DDevice()->CreateSamplerState(&samplerDesc, &m_d3dTextureSampler));

@@ -58,8 +58,8 @@ void SSAODemoApp::Init()
 
 	InitLights();
 	InitRenderTechnique();
-	InitTestRenderables();
-	//InitRenderables();
+	//InitTestRenderables();
+	InitRenderables();
 	service::Locator::GetMouse()->AddListener(this);
 	service::Locator::GetKeyboard()->AddListener(this, { input::Key::F, input::Key::F1, input::Key::F2, input::Key::U, input::Key::Y, input::Key::J, input::Key::H, input::Key::M, input::Key::N , input::Key::O, input::Key::P, input::Key::K, input::Key::L });
 }
