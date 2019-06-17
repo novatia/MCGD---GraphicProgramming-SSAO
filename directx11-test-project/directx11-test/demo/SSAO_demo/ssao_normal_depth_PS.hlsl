@@ -1,13 +1,9 @@
-//SHARE THE INPUT STRUCTURE
 struct Material
 {
 	float4 ambient;
 	float4 diffuse;
 	float4 specular;
 };
-
-//SHARE THE INPUT STRUCTURE
-
 
 //INPUT to the Normal/Depth PS
 struct VertexOutNormalDepth
@@ -23,6 +19,5 @@ float4 main(VertexOutNormalDepth pin) : SV_TARGET
 	//renormalize interpolated normals.
 	pin.normalV = normalize(pin.normalV);
 
-	//return float4(pin.normalV, pin.posH.z);
-	return float4(pin.normalV, pin.posV.z); //preso dal libro
+	return float4(pin.normalV, pin.posV.z); 
 }

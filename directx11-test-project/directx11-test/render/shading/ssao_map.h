@@ -47,11 +47,6 @@ namespace xtest {
 
 				void Init();
 
-				/*void SetNoiseSize(uint32 noise_size);
-				void SetKernelSize(uint32 kernel_size);
-				void SetRadius(float radius);
-				void SetPower(float power);*/
-				
 				ID3D11ShaderResourceView* AsShaderView();
 				ID3D11RenderTargetView* AsRenderTargetView();
 				
@@ -72,11 +67,6 @@ namespace xtest {
 				void Draw();
 				void Release();
 
-				/*uint32 NoiseSize() const;
-				uint32 KernelSize() const;
-				float Radius() const;
-				float Power() const;*/
-
 				float m_occlusionRadius = 0.5f;
 				float m_occlusionFadeStart = 0.2f;
 				float m_occlusionFadeEnd = 2.0f;
@@ -93,10 +83,6 @@ namespace xtest {
 
 				DirectX::XMFLOAT4 m_frustumFarCorner[4];
 				DirectX::XMFLOAT4 m_offsets[xtest::render::shading::SSAOData::SAMPLE_COUNT];
-				/*uint32 m_noise_size;
-				uint32 m_kernel_size;
-				float m_radius;
-				float m_power;*/
 
 				Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shaderView;
 				Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;

@@ -30,7 +30,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	directxSettings.showFrameStats = true;
 	
 	typedef xtest::demo::SSAODemoApp TestApp;
-	//typedef xtest::demo::ShadowDemoApp TestApp;
 
 	TestApp app(hInstance, windowSettings, directxSettings);
 	app.Init();

@@ -122,15 +122,10 @@ void SSAODemoApp::InitRenderTechnique()
 
 	//// SSAO pass
 	{
-		//m_SSAOMap.SetNoiseSize(4);
-		//m_SSAOMap.SetKernelSize(32);
-		//m_SSAOMap.SetPower(3.0f);
-		//m_SSAOMap.SetRadius(1.69f);
 		m_SSAOMap.Init();
 
 		std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_map_VS.cso")));
 		vertexShader->SetVertexInput(std::make_shared<VertexInputAmbientOcclusion>());
-		//vertexShader->AddConstantBuffer(CBufferFrequency::per_object, std::make_unique<CBuffer<PerObjectData>>());
 		vertexShader->AddConstantBuffer(CBufferFrequency::per_object_ambient_occlusion, std::make_unique<CBuffer<PerObjectCBAmbientOcclusion>>());
 
 		std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>(loader->LoadBinaryFile(GetRootDir().append(L"\\ssao_map_PS.cso")));
@@ -219,10 +214,6 @@ void SSAODemoApp::InitTestRenderables()
 	m.normalMap = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_norm.png)");
 	m.diffuseMap = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_color.png)");
 	m.glossMap = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_gloss.png)");
-
-	//m.normalMap  = L"" + GetRootDir().append(LR"(\3d-objects\neutro\neutro_norm.png)");
-	//m.diffuseMap = L"" + GetRootDir().append(LR"(\3d-objects\neutro\neutro_color.png)");
-	//m.glossMap   = L"" + GetRootDir().append(LR"(\3d-objects\neutro\neutro_gloss.png)");
 
 	m.ambient = { 0.2f,0.2f,0.2f,0.2f };
 	m.diffuse = { 0.4f,0.4f,0.4f,0.4f };
@@ -618,10 +609,7 @@ void SSAODemoApp::RenderScene()
 	{
 		m_d3dAnnotation->BeginEvent(L"ambient-occlusion-pass");
 		m_SSAOPass.Bind();
-
-		//m_SSAOPass.GetState()->ClearDepthOnly();
 		m_SSAOPass.GetState()->ClearRenderTarget(DirectX::Colors::Black);
-
 		m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
 		m_SSAOPass.GetPixelShader()->BindTexture(TextureUsage::random_vec_map, m_randomVecMap.AsShaderView());
 
@@ -645,9 +633,6 @@ void SSAODemoApp::RenderScene()
 		m_d3dAnnotation->BeginEvent(L"blur-pass");
 		m_SSAOBlurHPass.Bind();
 
-		//m_SSAOPass.GetState()->ClearDepthOnly();
-		//m_SSAOBlurHPass.GetState()->ClearRenderTarget(DirectX::Colors::Black);
-
 		m_SSAOBlurHPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
 		m_SSAOBlurHPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, m_SSAOMap.AsShaderView());
 
@@ -669,9 +654,6 @@ void SSAODemoApp::RenderScene()
 	{
 		m_d3dAnnotation->BeginEvent(L"blur-pass");
 		m_SSAOBlurPass.Bind();
-
-		//m_SSAOPass.GetState()->ClearDepthOnly();
-		//m_SSAOBlurPass.GetState()->ClearRenderTarget(DirectX::Colors::Black);
 
 		m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::normal_depth_map, m_normalDepthMap.AsShaderView());
 		m_SSAOBlurPass.GetPixelShader()->BindTexture(TextureUsage::ssao_map, m_BlurHMap.AsShaderView());
@@ -756,30 +738,21 @@ void SSAODemoApp::RenderScene()
 
 SSAODemoApp::PerFrameDataNormalDepth xtest::demo::SSAODemoApp::ToPerFrameData(const render::Renderable & renderable)
 {
-	/*
-	Vedi MeshViewDemo.cpp 584-594
-	*/
 	PerFrameDataNormalDepth data;
 	XMMATRIX W = XMLoadFloat4x4(&renderable.GetTransform());
 	XMMATRIX W_InverseTranspose = XMMatrixTranspose(XMMatrixInverse(nullptr, W));
 
-	//XMMATRIX T = XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
 	XMMATRIX V = m_camera.GetViewMatrix();
 	XMMATRIX P = m_camera.GetProjectionMatrix();
 
 	XMMATRIX WV = W * V;
-	//XMMATRIX W_InverseTransposeV = W_InverseTranspose * V;  // IMMAGINE NORMALE BLU E MARRONE
-	XMMATRIX W_InverseTransposeV = W_InverseTranspose; //IMMAGINE NORMALE VERDE
+	XMMATRIX W_InverseTransposeV = W_InverseTranspose; 
 
 	XMMATRIX WVP = W * V * P;
 
 	//[-1,1]->[0,1]
-	static const XMMATRIX T = XMMatrixScaling(1.0f, 1.0f, 1.0f); //SORGENTE MeshViewDemo.cpp 
-	/*XMMATRIX T(0.5f, 0.0f, 0.0f, 0.0f,
-		0.0f, -0.5f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.5f, 0.5f, 0.0f, 1.0f); //TENTATIVO
-	*/
+	static const XMMATRIX T = XMMatrixScaling(1.0f, 1.0f, 1.0f); 
+
 	XMStoreFloat4x4(&data.worldView, XMMatrixTranspose(WV));
 	XMStoreFloat4x4(&data.worldInvTransposeView, XMMatrixTranspose(W_InverseTransposeV));
 	XMStoreFloat4x4(&data.texTransform, XMMatrixTranspose(T));
@@ -825,16 +798,14 @@ SSAODemoApp::PerObjectData SSAODemoApp::ToPerObjectData(const render::Renderable
 
 SSAODemoApp::PerObjectCBAmbientOcclusion SSAODemoApp::ToPerObjectAmbientOcclusion()
 {
-	//Vedi SSAO.cpp 79-92 Qui 
 	m_SSAOMap.BuildFrustumFarCorners(m_camera.GetAspectRatio(), m_camera.GetYFov(), m_camera.GetZFarPlane());
-	//m_SSAOMap.BuildKernelVectors();
 
 	PerObjectCBAmbientOcclusion data;
 
 	XMMATRIX T(0.5f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.5f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
-		0.5f, 0.5f, 0.0f, 1.0f);//XMLoadFloat4x4(&renderable.GetTexcoordTransform(meshName));
+		0.5f, 0.5f, 0.0f, 1.0f);
 
 	XMMATRIX P = m_camera.GetProjectionMatrix();
 	XMMATRIX PT = XMMatrixMultiply(P, T);

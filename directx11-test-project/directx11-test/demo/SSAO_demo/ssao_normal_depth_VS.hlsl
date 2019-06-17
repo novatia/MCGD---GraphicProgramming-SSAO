@@ -1,5 +1,3 @@
-
-//SHARE THE INPUT STRUCTURE
 struct VertexIn
 {
 	float3 posL : POSITION;
@@ -8,7 +6,6 @@ struct VertexIn
 	float2 uv : TEXCOORD;
 };
 
-//SHARE THE INPUT STRUCTURE
 cbuffer PerObjectCBNormalDepth : register(b4)
 {
 	float4x4 worldView;
@@ -16,7 +13,6 @@ cbuffer PerObjectCBNormalDepth : register(b4)
 	float4x4 worldViewProj;
 	float4x4 texTransform;
 };
-
 
 //INPUT to the Normal/Depth PS
 struct VertexOutNormalDepth
@@ -26,8 +22,6 @@ struct VertexOutNormalDepth
 	float3 normalV : NORMAL;
 	float2 uv : TEXCOORD0;
 };
-
-
 
 VertexOutNormalDepth main(VertexIn vin)
 {

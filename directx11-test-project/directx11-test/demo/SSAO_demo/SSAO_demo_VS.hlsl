@@ -37,11 +37,6 @@ cbuffer PerObjectCB : register(b0)
 	Material material;
 };
 
-//cbuffer PerFrameCMAmbientOcclusion : register(b4)
-//{
-//	float4x4 WVPT_ssao;
-//}
-
 VertexOut main(VertexIn vin)
 {
 	VertexOut vout;

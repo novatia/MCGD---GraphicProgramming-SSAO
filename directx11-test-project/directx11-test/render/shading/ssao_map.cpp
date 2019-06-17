@@ -28,11 +28,6 @@ xtest::render::shading::SSAOMap::SSAOMap(uint32 width, uint32 height)
 {
 	m_width = width;
 	m_height = height;
-
-	//m_kernel_size = kernel_size;
-	//m_noise_size = noise_size;
-	//m_radius = radius;
-	//m_power = power;
 }
 
 void xtest::render::shading::SSAOMap::Init()
@@ -71,11 +66,6 @@ void xtest::render::shading::SSAOMap::Init()
 	SSAOData::VertexInAmbientOcclusion *v3 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(+1.0f, +1.0f, 0.0f), DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 0.0f));
 	SSAOData::VertexInAmbientOcclusion *v4 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(+1.0f, -1.0f, 0.0f), DirectX::XMFLOAT3(3.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 
-	/*
-	SSAOData::VertexInAmbientOcclusion *v2 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(-1.0f, +1.0f, 0.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 0.0f));
-	SSAOData::VertexInAmbientOcclusion *v3 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(+1.0f, +1.0f, 0.0f), DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	SSAOData::VertexInAmbientOcclusion *v4 = new SSAOData::VertexInAmbientOcclusion(DirectX::XMFLOAT3(+1.0f, -1.0f, 0.0f), DirectX::XMFLOAT3(3.0f, 0.0f, 0.0f), DirectX::XMFLOAT2(0.0f, 0.0f));
-	*/
 	m_vs_data.vertices.push_back(*v1);
 	m_vs_data.vertices.push_back(*v2);
 	m_vs_data.vertices.push_back(*v3);
@@ -123,26 +113,6 @@ void xtest::render::shading::SSAOMap::Init()
 	BuildKernelVectors();
 }
 
-//void xtest::render::shading::SSAOMap::SetNoiseSize(uint32 noise_size)
-//{
-//	m_noise_size = noise_size;
-//}
-//
-//void xtest::render::shading::SSAOMap::SetKernelSize(uint32 kernel_size)
-//{
-//	m_kernel_size = kernel_size;
-//}
-//
-//void xtest::render::shading::SSAOMap::SetRadius(float radius)
-//{
-//	m_radius = radius;
-//}
-//
-//void xtest::render::shading::SSAOMap::SetPower(float power)
-//{
-//	m_power = power;
-//}
-
 ID3D11ShaderResourceView * xtest::render::shading::SSAOMap::AsShaderView()
 {
 	XTEST_ASSERT(m_shaderView, L"SSAO map uninitialized");
@@ -170,6 +140,7 @@ void xtest::render::shading::SSAOMap::ResetTargetView(uint32 n_width, uint32 n_h
 {
 	m_renderTargetView.Reset();
 	m_shaderView.Reset();
+
 	// already initialized
 	if (m_shaderView)
 	{
@@ -218,21 +189,6 @@ float xtest::render::shading::SSAOMap::RandomFloat(float min, float max)
 
 void xtest::render::shading::SSAOMap::BuildKernelVectors()
 {
-	/*srand((unsigned)std::time(NULL));
-	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++)
-	{
-		m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), RandomFloat(0.25f, 1.0f), 0.0f);
-		//m_offsets[i] = DirectX::XMFLOAT4(RandomFloat(0.05f, 255.0f), RandomFloat(0.05f, 255.0f), RandomFloat(0.05f, 255.0f), 255.0f);
-	}
-
-	for (int i = 0; i < SSAOData::SAMPLE_COUNT; i++)
-	{
-		//float s = RandomFloat(0.25f, 1.0f);
-		XMVECTOR v = 1 * XMVector4Normalize(XMLoadFloat4(&m_offsets[i]));
-		XMStoreFloat4(&m_offsets[i], v);
-	}*/
-
-
 	/*
 	We vary the x and y direction in tangent space between -1.0 and 1.0 and vary the z direction
 	of the samples between 0.0 and 1.0 (if we varied the z direction between -1.0 and 1.0 as well
@@ -309,23 +265,3 @@ void xtest::render::shading::SSAOMap::Release()
 {
 	m_renderTargetView->Release();
 }
-
-//uint32 xtest::render::shading::SSAOMap::NoiseSize() const
-//{
-//	return m_noise_size;
-//}
-//
-//uint32 xtest::render::shading::SSAOMap::KernelSize() const
-//{
-//	return m_kernel_size;
-//}
-//
-//float xtest::render::shading::SSAOMap::Radius() const
-//{
-//	return m_radius;
-//}
-//
-//float xtest::render::shading::SSAOMap::Power() const
-//{
-//	return m_power;
-//}

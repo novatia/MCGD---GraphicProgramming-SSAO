@@ -12,18 +12,7 @@ cbuffer BlurCBufferPerFrame : register(b5)
 	float texelHeight;
 	bool horizontalBlur;
 };
-/*
-cbuffer BlurCBufferSettings
-{
-	float weights[11] = { 0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f };
-};
 
-
-cbuffer BlurCBufferFixed
-{
-	static const int blurRadius = 5;
-};
-*/
 Texture2D normalDepthMap : register(t11);
 Texture2D SSAOMap : register (t13);
 SamplerState samNormalDepth : register(s1);
@@ -63,7 +52,5 @@ float4 main(VertexOutAmbientOcclusion pin) : SV_TARGET
 			totalWeight += weight;
 		}
 	}
-	//return c;
-	//return c;
 	return color / totalWeight;
 }
