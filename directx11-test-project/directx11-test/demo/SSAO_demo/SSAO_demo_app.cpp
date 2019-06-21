@@ -59,7 +59,8 @@ void SSAODemoApp::Init()
 	InitLights();
 	InitRenderTechnique();
 	//InitTestRenderables();
-	InitRenderables();
+	//InitRenderables();
+	InitTeapotRenderables();
 	service::Locator::GetMouse()->AddListener(this);
 	service::Locator::GetKeyboard()->AddListener(this, { input::Key::F, input::Key::F1, input::Key::F2, input::Key::U, input::Key::Y, input::Key::J, input::Key::H, input::Key::M, input::Key::N , input::Key::O, input::Key::P, input::Key::K, input::Key::L });
 }
@@ -241,6 +242,43 @@ void SSAODemoApp::InitTestRenderables()
 			sphere.SetTransform(XMMatrixRotationY(math::ToRadians(0)) * XMMatrixTranslation(i * 2 * R, Y + R, j * 2 * R));
 			sphere.Init();
 			m_objects.push_back(sphere);
+		}
+	}
+}
+
+void SSAODemoApp::InitTeapotRenderables()
+{
+	//xtest::file::WriteGPFOnDiskFromObj(L"" + GetRootDir().append(L"\\3d-objects\\teapot\\teapot.obj"), L"" + GetRootDir().append(L"\\3d-objects\\teapot\\teapot.gpf"),false);
+	//return;
+
+	int size = 11;
+	float R = 1;
+	float Y = 5;
+
+	xtest::mesh::MeshMaterial m;
+
+	m.normalMap = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_norm.png)");
+	m.diffuseMap = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_color.png)");
+	m.glossMap = L"" + GetRootDir().append(LR"(\3d-objects\wood\wood_gloss.png)");
+
+	m.ambient = { 0.2f,0.2f,0.2f,0.2f };
+	m.diffuse = { 0.4f,0.4f,0.4f,0.4f };
+	m.specular = { 0.2f,0.2f,0.2f,0.2f };
+
+	xtest::mesh::MeshData plane = xtest::mesh::GeneratePlane((size + 1)* R * 2, (size + 1)*R * 2, size, size);
+	render::Renderable planer{ plane , m };
+	planer.SetTransform(XMMatrixRotationY(math::ToRadians(0)) * XMMatrixTranslation(size*R, Y, size *  R));
+	planer.Init();
+
+	m_objects.push_back(planer);
+
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			render::Renderable teapot { *(service::Locator::GetResourceLoader()->LoadGPFMesh(GetRootDir().append(LR"(\3d-objects\teapot\teapot.gpf)"))) };
+	
+			teapot.SetTransform(XMMatrixScaling(0.1f, 0.1f, 0.1f) *XMMatrixRotationY(math::ToRadians(45)) * XMMatrixTranslation(i * 2 * R, Y +0.8f, j * 2 * R));
+			teapot.Init();
+			m_objects.push_back(teapot);
 		}
 	}
 }

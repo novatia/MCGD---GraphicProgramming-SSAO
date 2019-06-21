@@ -134,6 +134,7 @@ namespace xtest {
 			void InitRenderTechnique();
 			void InitRenderables();
 			void InitTestRenderables();
+			void InitTeapotRenderables();
 			void InitLights();
 			PerObjectData ToPerObjectData(const render::Renderable& renderable, const std::string& meshName);
 			PerObjectCBAmbientOcclusion ToPerObjectAmbientOcclusion();
