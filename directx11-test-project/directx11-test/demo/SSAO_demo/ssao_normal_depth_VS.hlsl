@@ -28,7 +28,8 @@ VertexOutNormalDepth main(VertexIn vin)
 	VertexOutNormalDepth vout;
 
 	vout.posV = mul(float4(vin.posL, 1.0f), worldView).xyz;
-	vout.normalV = mul(vin.normalL, (float3x3)worldInvTransposeView);
+//	vout.normalV = mul(vin.normalL, (float3x3)worldInvTransposeView);
+	vout.normalV = mul(vin.normalL, (float3x3)worldViewProj);
 
 	// Transform to homogeneous clip space.
 	vout.posH = mul(float4(vin.posL, 1.0f), worldViewProj);
